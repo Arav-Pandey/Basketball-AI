@@ -83,9 +83,11 @@ export default function Playmaking() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-start gap-4 sm:gap-6 px-2 sm:px-0 pt-4 sm:pt-6">
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">Playmaking</h1>
-      <div className="w-full flex justify-center overflow-x-auto">
+    <div className="flex min-h-screen w-full flex-col items-center justify-start gap-3 px-2 pt-3 sm:gap-6 sm:px-0 sm:pt-6">
+      <h1 className="text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+        Playmaking
+      </h1>
+      <div className="flex w-full justify-center overflow-x-auto">
         <LineDrawerCurve
           reset={reset}
           removeLines={removeLines}
@@ -96,7 +98,7 @@ export default function Playmaking() {
             <img
               src={HalfCourt}
               alt="Half Court"
-              className="w-full h-auto mb-40 sm:mb-60"
+              className="mb-24 h-auto w-full sm:mb-40 lg:mb-60"
             />
 
             <div className="absolute left-4 sm:left-20 top-4 sm:top-20">
@@ -104,7 +106,9 @@ export default function Playmaking() {
                 <div className="ml-4 sm:ml-10" key={player.id}>
                   <Draggable key={player.id}>
                     <LineStart>
-                      <span className="text-gray-400 text-lg sm:text-xl">O</span>
+                      <span className="text-gray-400 text-lg sm:text-xl">
+                        O
+                      </span>
                     </LineStart>
                   </Draggable>
                 </div>
@@ -116,7 +120,9 @@ export default function Playmaking() {
                 <div className="ml-4 sm:ml-10" key={player.id}>
                   <Draggable key={player.id}>
                     <LineStart>
-                      <span className="text-gray-400 text-lg sm:text-xl">X</span>
+                      <span className="text-gray-400 text-lg sm:text-xl">
+                        X
+                      </span>
                     </LineStart>
                   </Draggable>
                 </div>
@@ -137,7 +143,11 @@ export default function Playmaking() {
               {shotSpots.map((spot) => (
                 <div className="ml-4 sm:ml-10" key={spot.id}>
                   <Draggable key={spot.id}>
-                    <PiCircleDashedFill fill="black" size={20} className="sm:w-10 sm:h-10" />
+                    <PiCircleDashedFill
+                      fill="black"
+                      size={20}
+                      className="sm:w-10 sm:h-10"
+                    />
                   </Draggable>
                 </div>
               ))}

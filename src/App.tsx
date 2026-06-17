@@ -1,106 +1,63 @@
 import { useState } from "react";
+import { House, PlayCircle } from "lucide-react";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import Form from "./Form/Form.tsx";
-import Feedback from "./Feedback.tsx";
+import Form from "./Form/Backend/Form.tsx";
 import Home from "./Home.tsx";
-import Overlay from "./Overlay.tsx";
-import FormHome from "./Form/FormHome.tsx";
-import ArcHome from "./Arc/ArcHome.tsx";
-import Arc from "./Arc/Arc.tsx";
+import FormHome from "./Form/Frontend/FormHome.tsx";
 import BackgroundLayout from "./BackgroundLayout.tsx";
-import FormLive from "./Form/FormLive.tsx";
+import FormLive from "./FormLive/FormLive.tsx";
 import Playmaking from "./PlayMaking/Playmaking.tsx";
-import BottomBar from "./BottomBar.tsx";
 import Demo from "./Demo.tsx";
+import SectionPageRoute from "./Citations/SectionPageRoute.tsx";
+import { useNavigate } from "react-router-dom";
 
 export default function App() {
-  const [active, setActive] = useState("Home");
+  const navigate = useNavigate();
   const [videoURL, setVideoURL] = useState<string>("");
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [contextList, setContextList] = useState<string[]>([]);
-  const [showDemo, setShowDemo] = useState(false);
-  const [demoExiting, setDemoExiting] = useState(false);
-
-  const handleClosedemo = () => {
-    setDemoExiting(true);
-    setTimeout(() => {
-      setShowDemo(false);
-      setDemoExiting(false);
-    }, 400); // Match animation duration
-  };
 
   return (
     <BackgroundLayout>
       <div>
-        <div className="min-h-screen w-full text-white pb-32 sm:pb-40" style={{ paddingBottom: "calc(14rem + env(safe-area-inset-bottom, 0px))" }}>
-          <main className="w-full px-4 sm:px-0">
-            {active === "Form" ? (
-              <Form
-                setActive={setActive}
-                videoURL={videoURL}
-                setContextList={setContextList}
-                contextList={contextList}
+        <div className="min-h-screen w-full overflow-x-hidden text-white">
+          <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center px-2 text-center sm:px-2 lg:px-4">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/form-home"
+                element={
+                  <FormHome setVideoURL={setVideoURL} videoURL={videoURL} />
+                }
               />
-            ) : active === "Home" ? (
-              <Home setActive={setActive} />
-            ) : active === "Feedback" ? (
-              <Feedback
-                contextList={contextList}
-                setContextList={setContextList}
+              <Route
+                path="/form"
+                element={<Form videoURL={videoURL} setVideoURL={setVideoURL} />}
               />
-            ) : active === "FormHome" ? (
-              <FormHome
-                setActive={setActive}
-                setVideoURL={setVideoURL}
-                videoURL={videoURL}
-              />
-            ) : active === "ArcHome" ? (
-              <ArcHome
-                setActive={setActive}
-                setVideoURL={setVideoURL}
-                videoURL={videoURL}
-                setVideoFile={setVideoFile}
-              />
-            ) : active === "Arc" ? (
-              <Arc videoUrl={videoURL} videoFile={videoFile} />
-            ) : active === "FormLive" ? (
-              <FormLive />
-            ) : active === "Playmaking" ? (
-              <Playmaking />
-            ) : (
-              <Overlay setActive={setActive} />
-            )}
+              <Route path="/form-live" element={<FormLive />} />
+              <Route path="/playmaking" element={<Playmaking />} />
+              <Route path="/sections/:id" element={<SectionPageRoute />} />
+              <Route path="/demo" element={<Demo />} />
+            </Routes>
           </main>
         </div>
-        <BottomBar
-          active={active}
-          setActive={setActive}
-          videoURL={videoURL}
-          contextList={contextList}
-          setContextList={setContextList}
-        />
       </div>
 
-      {/* Demo Button - Fixed on top right */}
-      <button
-        onClick={() => setShowDemo(true)}
-        className="fixed top-3 sm:top-4 right-3 sm:right-4 z-40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 font-semibold rounded-lg border border-orange-500/40 hover:border-orange-400/60 transition-all backdrop-blur-md active:scale-95"
+      <a
+        href={"/demo"}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed right-3 top-3 z-40 inline-flex items-center gap-1 rounded-2xl border border-orange-400/40 bg-linear-to-r from-orange-500 to-amber-400 px-3.5 py-2 text-lg text-slate-950 shadow-lg shadow-orange-500/25 transition-all hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:right-4 sm:top-4 sm:px-4 font-semibold"
       >
-        Demo
+        <PlayCircle size={20} />
+        Instructions Page
+      </a>
+      <button
+        onClick={() => navigate("/")}
+        className="cursor-pointer fixed left-3 top-3 z-40 inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-zinc-900/70 px-3.5 py-2 text-lg font-semibold text-zinc-100 shadow-md shadow-black/20 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-zinc-800/80 hover:text-white active:scale-95 sm:left-4 sm:top-4 sm:px-4"
+      >
+        <House className="h-4 w-4" />
+        Home
       </button>
-
-      {/* Demo Modal */}
-      {showDemo && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className={`h-full w-full overflow-y-auto ${
-              demoExiting ? "demo-modal-exit" : "demo-modal-enter"
-            }`}
-          >
-            <Demo onClose={handleClosedemo} />
-          </div>
-        </div>
-      )}
     </BackgroundLayout>
   );
 }

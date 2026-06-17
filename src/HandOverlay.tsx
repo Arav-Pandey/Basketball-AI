@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MdBackHand } from "react-icons/md";
 import { IoHandLeft } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   setDominantHand: React.Dispatch<
@@ -10,6 +11,7 @@ interface Props {
 
 export default function HandOverlay({ setDominantHand }: Props) {
   const [vis, setVis] = useState(true);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -17,14 +19,11 @@ export default function HandOverlay({ setDominantHand }: Props) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm text-white"
       style={{ visibility: vis ? "visible" : "hidden" }}
     >
-      <div className="relative w-full max-w-2xl rounded-[2rem] border border-orange-400/20 bg-slate-950/95 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.45)]">
+      <div className="relative w-full max-w-2xl rounded-4xl border border-orange-400/20 bg-slate-950/95 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.45)]">
         <button
           id="close-btn"
-          className="absolute right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-900/80 text-xl text-white transition hover:bg-orange-500/20"
-          onClick={() => {
-            setVis(false);
-            window.location.reload();
-          }}
+          className="absolute cursor-pointer right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-900/80 text-xl text-white transition hover:bg-orange-500/20"
+          onClick={() => navigate("/")}
           aria-label="Close hand selection"
         >
           ×
@@ -37,15 +36,17 @@ export default function HandOverlay({ setDominantHand }: Props) {
           <h2 className="text-3xl font-extrabold tracking-tight text-white">
             Which hand do you shoot with?
           </h2>
-          <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-300">
-            Knowing your shooting hand helps HoopCorrector tailor the shot analysis to your natural motion.
+          <p className="mx-auto max-w-2xl text-lg leading-7 text-slate-300">
+            Knowing your shooting hand helps Basketball AI tailor the shot
+            analysis to your natural motion.
           </p>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {/* id="arc-btn" */}
           <button
-            id="arc-btn"
-            className="group flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 text-white shadow-xl transition hover:-translate-y-1 hover:border-orange-400/40 hover:bg-orange-500/10"
+            id="left-hand-btn"
+            className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 text-white shadow-xl transition hover:-translate-y-1 hover:border-orange-400/40 hover:bg-orange-500/10"
             onClick={() => {
               setDominantHand("left");
               setVis(false);
@@ -56,15 +57,12 @@ export default function HandOverlay({ setDominantHand }: Props) {
             </div>
             <div>
               <p className="text-xl font-semibold">Left</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Use left-hand data for a more accurate wrist and release review.
-              </p>
             </div>
           </button>
 
           <button
             id="form-btn"
-            className="group flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 text-white shadow-xl transition hover:-translate-y-1 hover:border-orange-400/40 hover:bg-orange-500/10"
+            className="group cursor-pointer flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 text-white shadow-xl transition hover:-translate-y-1 hover:border-orange-400/40 hover:bg-orange-500/10"
             onClick={() => {
               setDominantHand("right");
               setVis(false);
@@ -75,9 +73,6 @@ export default function HandOverlay({ setDominantHand }: Props) {
             </div>
             <div>
               <p className="text-xl font-semibold">Right</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Use right-hand data for the most precise shot movement analysis.
-              </p>
             </div>
           </button>
         </div>

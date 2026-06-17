@@ -1,3 +1,4 @@
+/*
 import { useEffect, useRef, useState } from "react";
 import { connectors, webrtc } from "@roboflow/inference-sdk";
 import Display from "./Display";
@@ -219,3 +220,4 @@ export default function Arc({ videoUrl, videoFile }: Props) {
     />
   );
 }
+*/

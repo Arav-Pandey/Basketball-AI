@@ -1,3 +1,4 @@
+/*
 import Recorder from "../Record";
 
 interface Props {
@@ -37,3 +38,4 @@ export default function ArcHome({ setActive, setVideoURL, videoURL, setVideoFile
     </div>
   );
 }
+*/

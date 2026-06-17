@@ -1,0 +1,149 @@
+.accent-text {
+  color: hsl(var(--hue, 220), 90%, 68%);
+}
+
+.accent-icon-bg {
+  background: linear-gradient(
+    135deg,
+    hsla(var(--hue, 220), 90%, 55%, 0.24),
+    hsla(var(--hue, 220), 85%, 70%, 0.16)
+  );
+  box-shadow: inset 0 0 0 1px hsla(var(--hue, 220), 90%, 60%, 0.18);
+}
+
+.accent-row {
+  --hue: 220; /* fallback for rows with no score */
+  transition: background-color 0.2s ease;
+}
+
+.accent-row:hover {
+  background: linear-gradient(
+    90deg,
+    hsla(var(--hue, 220), 85%, 55%, 0.12),
+    hsla(var(--hue, 220), 85%, 55%, 0.06)
+  );
+}
+
+.accent-chip {
+  border: 1px solid hsla(var(--hue, 220), 90%, 60%, 0.45);
+  background: linear-gradient(
+    135deg,
+    hsla(var(--hue, 220), 90%, 55%, 0.16),
+    hsla(var(--hue, 220), 85%, 70%, 0.12)
+  );
+  color: hsl(var(--hue, 220), 90%, 75%);
+  transition: all 0.2s ease;
+}
+
+.accent-chip:hover {
+  background: linear-gradient(
+    135deg,
+    hsla(var(--hue, 220), 90%, 55%, 0.24),
+    hsla(var(--hue, 220), 85%, 70%, 0.18)
+  );
+  color: hsl(var(--hue, 220), 90%, 82%);
+  transform: translateY(-1px);
+}
+
+/* Inline "Learn More" link under the metric label */
+.accent-link {
+  color: hsl(var(--hue, 220), 75%, 62%);
+}
+
+.accent-link:hover {
+  color: hsl(var(--hue, 220), 85%, 72%);
+}
+
+.accent-score-text {
+  color: hsl(var(--hue, 220), 92%, 65%);
+}
+
+.accent-glow {
+  box-shadow:
+    0 0 0 2px hsla(var(--hue, 220), 92%, 60%, 0.35),
+    0 8px 24px hsla(var(--hue, 220), 88%, 50%, 0.2);
+}
+
+/* YouTube-style video timeline */
+.video-timeline {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+
+  background: linear-gradient(
+    to right,
+    rgb(249 115 22) 0%,
+    rgb(249 115 22) var(--progress),
+    rgb(63 63 70) var(--progress),
+    rgb(63 63 70) 100%
+  );
+
+  transition: height 0.15s ease;
+}
+
+/* Make the bar slightly bigger when hovering */
+.video-timeline:hover {
+  height: 6px;
+}
+
+/* Chrome / Edge / Safari */
+.video-timeline::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+  border: none;
+
+  background: rgb(249 115 22);
+
+  cursor: pointer;
+
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+
+  transition:
+    transform 0.15s ease,
+    width 0.15s ease,
+    height 0.15s ease;
+}
+
+.video-timeline:hover::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+/* Firefox */
+.video-timeline::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgb(249 115 22);
+
+  cursor: pointer;
+
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+
+  transition:
+    transform 0.15s ease,
+    width 0.15s ease,
+    height 0.15s ease;
+}
+
+.video-timeline:hover::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+/* Disabled */
+.video-timeline:disabled {
+  cursor: default;
+  opacity: 0.5;
+}

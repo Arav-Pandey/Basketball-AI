@@ -45,7 +45,7 @@ export default function PositionOverlay({ positionRef }: Props) {
             What position do you play?
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-300">
-            Help HoopCorrector tune its feedback by selecting your court role.
+            Help Basketball AI tune its feedback by selecting your court role.
           </p>
         </div>
 
@@ -60,15 +60,25 @@ export default function PositionOverlay({ positionRef }: Props) {
               }}
             >
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-orange-500/15">
-                <img src={option.image} alt={option.label} className="h-16 w-16 object-contain" />
+                <img
+                  src={option.image}
+                  alt={option.label}
+                  className="h-16 w-16 object-contain"
+                />
               </div>
               <div>
-                <p className="text-xl font-semibold text-white">{option.label}</p>
+                <p className="text-xl font-semibold text-white">
+                  {option.label}
+                </p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  {option.label === "Point Guard" && "Control the offense and set your rhythm."}
-                  {option.label === "Shooting Guard" && "Attack the rim and knock down perimeter shots."}
-                  {option.label === "Power Forward" && "Dominate the paint and create physical scoring chances."}
-                  {option.label === "Big Man" && "Anchor the defense and finish strong around the rim."}
+                  {option.label === "Point Guard" &&
+                    "Control the offense and set your rhythm."}
+                  {option.label === "Shooting Guard" &&
+                    "Attack the rim and knock down perimeter shots."}
+                  {option.label === "Power Forward" &&
+                    "Dominate the paint and create physical scoring chances."}
+                  {option.label === "Big Man" &&
+                    "Anchor the defense and finish strong around the rim."}
                 </p>
               </div>
             </button>
