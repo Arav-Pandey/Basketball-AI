@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useGemini from "./useGemini";
+import useGemini from "./utils/useGemini";
 
 interface Props {
   contextList: string[];
@@ -48,23 +48,37 @@ export default function Feedback({ contextList, setContextList }: Props) {
 
   return (
     <div className="w-full px-4 sm:px-6 py-6 sm:py-8 text-white">
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8">Feedback</h1>
-      
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8">
+        Feedback
+      </h1>
+
       <div className="overflow-x-auto rounded-lg border border-white/10">
         <table className="w-full border-collapse text-sm sm:text-base">
           <thead>
             <tr className="bg-orange-500/20 text-orange-200">
-              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">Ankle</th>
-              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">Knees</th>
-              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">Arm</th>
+              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">
+                Ankle
+              </th>
+              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">
+                Knees
+              </th>
+              <th className="border border-white/10 p-3 sm:p-4 text-left font-semibold">
+                Arm
+              </th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">{feedback.ankle}</td>
-              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">{feedback.knees}</td>
-              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">{feedback.arm}</td>
+              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">
+                {feedback.ankle}
+              </td>
+              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">
+                {feedback.knees}
+              </td>
+              <td className="border border-white/10 p-3 sm:p-4 text-slate-200">
+                {feedback.arm}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -75,8 +89,12 @@ export default function Feedback({ contextList, setContextList }: Props) {
       </div>
 
       <div>
-        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Future Steps</h2>
-        <p className="text-sm sm:text-base leading-6 sm:leading-7 text-slate-300 max-w-2xl">{feedback.futureSteps}</p>
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">
+          Future Steps
+        </h2>
+        <p className="text-sm sm:text-base leading-6 sm:leading-7 text-slate-300 max-w-2xl">
+          {feedback.futureSteps}
+        </p>
       </div>
     </div>
   );

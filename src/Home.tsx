@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { PlayCircle } from "lucide-react";
 import Steph from "./assets/Steph_Image.png";
-import Logo from "./assets/Logo.png";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -8,6 +8,35 @@ export default function Home() {
   const navigate = useNavigate();
   const [activeDefinition, setActiveDefinition] = useState<"form" | null>(null);
   const definitionRef = useRef<HTMLDivElement | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleGetStarted = async () => {
+    try {
+      const response = await fetch("/.netlify/functions/auth", {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+
+      if (response.status === 401) {
+        window.alert("Log in first");
+        return;
+      }
+
+      if (!response.ok) {
+        window.alert("Unable to verify login. Please try again.");
+        return;
+      }
+
+      navigate("/form-home");
+    } catch {
+      window.alert("Unable to verify login. Please try again.");
+    }
+  };
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    window.location.assign("/.netlify/functions/logout");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -26,11 +55,11 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex min-h-[80vh] w-full flex-col items-center justify-center px-2 py-3 text-center text-white sm:px-4 sm:py-5">
-        <div className="relative w-full overflow-hidden rounded-2xl border border-orange-500/30 bg-slate-900/70 p-3 shadow-[0_40px_100px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:rounded-4xl sm:p-5 lg:p-8">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center text-center text-white">
+        <div className="relative min-h-screen w-full overflow-hidden p-3 sm:p-5 lg:p-8">
           <div className="mb-6 flex flex-col items-center gap-4 sm:mb-8 sm:flex-row sm:justify-between sm:gap-6">
             <img
-              src={Logo}
+              src="/BasketballAI_Logo.png"
               alt="Logo"
               className="h-16 w-auto sm:h-24 lg:h-30"
             />
@@ -38,13 +67,12 @@ export default function Home() {
               Basketball AI
             </h1>
             <img
-              src={Logo}
+              src="/BasketballAI_Logo.png"
               alt="Logo"
               className="hidden h-16 w-auto sm:block sm:h-24 lg:h-30"
             />
           </div>
 
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,159,67,0.18),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,99,71,0.12),transparent_35%)]" />
           <div className="relative grid gap-6 sm:gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
             <div className="flex flex-col items-center space-y-6 text-center sm:space-y-8">
               <div className="space-y-4">
@@ -84,19 +112,42 @@ export default function Home() {
                     href="/demo"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 inline-block text-base leading-7 text-orange-400 underline sm:mt-8 sm:text-lg lg:text-2xl"
+                    className="mt-6 inline-flex items-center gap-2 text-base leading-7 text-orange-300 underline decoration-orange-400/60 underline-offset-4 transition hover:text-orange-100 sm:mt-8 sm:text-lg lg:text-2xl"
                   >
-                    Click Here to Learn More!
+                    <PlayCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    Instructions Page
                   </a>
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 text-xl sm:mt-12 sm:flex-row sm:gap-4 sm:text-2xl">
+              <div className="mt-8 grid w-full grid-cols-[1fr_auto_1fr] items-start gap-x-2 sm:mt-12 sm:gap-x-4">
                 <button
-                  onClick={() => navigate("/form-home")}
-                  className="w-full cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-orange-500 to-amber-400 px-6 py-3 font-semibold text-slate-950 shadow-xl shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-2xl"
+                  onClick={() => navigate("/login")}
+                  className="justify-self-end whitespace-nowrap cursor-pointer rounded-full border border-orange-400/60 px-3 py-3 text-sm font-semibold text-orange-200 transition hover:bg-orange-500/10 active:scale-95 sm:px-8 sm:py-4 sm:text-2xl"
                 >
-                  Get Started
+                  Log in
+                </button>
+                <div className="flex flex-col items-center gap-4">
+                  <button
+                    onClick={() => void handleGetStarted()}
+                    className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-linear-to-r from-orange-500 to-amber-400 px-4 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:px-8 sm:py-4 sm:text-2xl"
+                  >
+                    Get Started
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSignOut()}
+                    disabled={isSigningOut}
+                    className="cursor-pointer rounded-full border border-white/25 px-5 py-2 text-sm font-semibold text-slate-300 transition hover:border-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isSigningOut ? "Signing out..." : "Sign out"}
+                  </button>
+                </div>
+                <button
+                  onClick={() => navigate("/career")}
+                  className="justify-self-start whitespace-nowrap cursor-pointer rounded-full border border-orange-400/60 px-3 py-3 text-sm font-semibold text-orange-200 transition hover:bg-orange-500/10 active:scale-95 sm:px-8 sm:py-4 sm:text-2xl"
+                >
+                  My Career
                 </button>
               </div>
             </div>

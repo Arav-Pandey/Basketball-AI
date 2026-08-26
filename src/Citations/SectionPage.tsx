@@ -29,13 +29,10 @@ export default function SectionPage({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br px-6 py-12">
+    <div className="min-h-screen w-full px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-4xl">
-        <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-zinc-900/80 shadow-2xl backdrop-blur-md">
-          <div className="h-1 w-full bg-linear-to-r from-orange-500 via-amber-400 to-orange-600" />
-          <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl" />
-
-          <div className="relative z-10 p-10">
+        <div className="relative">
+          <div className="relative z-10">
             <div className="mb-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3">
               <p className="text-sm text-orange-100">
                 If you came from deeper analysis, the page you were on is still

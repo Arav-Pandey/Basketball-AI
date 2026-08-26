@@ -3,16 +3,10 @@ import { sections } from "./Citations/Citations";
 
 export default function Demo() {
   return (
-    <div className="w-full min-h-screen pb-20 pt-20 overflow-hidden bg-black px-3 text-center sm:px-6 lg:px-10">
+    <div className="w-full min-h-screen overflow-hidden px-3 pb-20 pt-20 text-center sm:px-6 lg:px-10">
       <div className="relative flex min-h-screen flex-col items-center justify-start p-3 text-white sm:p-4 lg:p-6">
         <div className="w-full max-w-6xl">
-          <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-linear-to-br from-zinc-900 via-neutral-900 to-black p-10 shadow-[0_0_35px_rgba(249,115,22,0.15)]">
-            {/* Accent */}
-            <div className="absolute left-0 top-0 h-1 w-full bg-linear-to-r from-orange-500 via-amber-400 to-orange-600" />
-
-            {/* Glow */}
-            <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-orange-500/10 blur-3xl" />
-
+          <div className="relative w-full p-4 sm:p-8 lg:p-10">
             <div className="relative z-10 text-center">
               <p className="text-sm uppercase tracking-[0.35em] text-orange-400">
                 Basketball AI

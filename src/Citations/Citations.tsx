@@ -101,7 +101,7 @@ According to Coury & Buehler Physical Therapy (https://cbphysicaltherapy.com/for
 
 In a YouTube video by Coach Dave Love | NBA Shooting Coach (https://www.youtube.com/watch?v=emI6Au1ZPHE), he explains that a wide, balanced base allows players to create force more efficiently, while having the legs in different positions reduces stability. This supports checking that the knees stay aligned with the feet rather than collapsing inward or flaring excessively outward.
 `,
-    summary: `Knee distance is the space between your knees while preparing to shoot. Keeping your knees about shoulder-width apart creates a stable base and helps maintain balance. Proper knee distance also allows for efficient power transfer from your legs to your shot.`,
+    summary: `Knee distance is the space between your knees while preparing to shoot. Keeping your knees just a little closer than hip-width creates a stable base and helps maintain balance. Proper knee distance also allows for efficient power transfer from your legs to your shot.`,
     videoLink: "https://www.youtube.com/watch?v=emI6Au1ZPHE",
     videoDescription:
       "Watch this video to learn how far apart your knees should be while shooting a basketball.",
