@@ -1,7 +1,7 @@
 import { AlertTriangle, ArrowLeft, Film } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import sampleVideo from "../../assets/Feet_Close_Shot.mp4";
+import sampleVideo from "../../assets/Final_Shot.mp4";
 
 interface Props {
   setVideoURL: React.Dispatch<React.SetStateAction<string>>;

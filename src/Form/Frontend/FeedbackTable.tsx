@@ -1,11 +1,11 @@
-import type { FeedbackTableProps } from "../interfaces";
-
 interface FeedbackRowProps {
   label: string;
   feedback: string;
   score?: number | null;
   href?: string;
 }
+
+type AccentStyle = React.CSSProperties & { "--hue"?: number };
 
 function scoreToHue(score: number): number {
   const clamped = Math.max(0, Math.min(100, score));
@@ -25,28 +25,25 @@ function scoreToRating(score: number): {
 
   if (rounded >= 85) return { emoji: "🤩", label: "Excellent" };
   if (rounded >= 65) return { emoji: "😊", label: "Above Average" };
-  if (rounded >= 41) return { emoji: "😐", label: "Average" };
+  if (rounded >= 41) return { emoji: "😐", label: "Mediocre" };
 
   return { emoji: "😫", label: "Poor" };
 }
 
 function FeedbackRow({ label, feedback, score, href }: FeedbackRowProps) {
   const hasScore = score !== null && score !== undefined;
+  const scoreValue = score ?? 0;
 
-  const style = hasScore
-    ? ({
-        ["--hue" as any]: scoreToHue(score as number),
-      } as React.CSSProperties)
+  const style: AccentStyle | undefined = hasScore
+    ? { "--hue": scoreToHue(scoreValue) }
     : undefined;
 
   const rating =
-    hasScore && label !== "Curry Comparison"
-      ? scoreToRating(score as number)
-      : null;
+    hasScore && label !== "Curry Comparison" ? scoreToRating(scoreValue) : null;
 
   return (
     <tr className="accent-row" style={style}>
-      <td className="px-4 py-4 sm:px-6 sm:py-5">
+      <td data-label="Metric" className="px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-1">
           <span className="text-base font-bold tracking-wide text-white sm:text-lg">
             {label}
@@ -65,19 +62,15 @@ function FeedbackRow({ label, feedback, score, href }: FeedbackRowProps) {
         </div>
       </td>
 
-      <td className="px-4 py-4 leading-8 text-zinc-200 sm:px-6 sm:text-xl">
-        {feedback}
-      </td>
-
-      <td className="px-4 py-4 sm:px-6">
+      <td data-label="Score" className="px-4 py-4 sm:px-6">
         {hasScore ? (
           <span
             className="inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-base font-black text-zinc-950 shadow-lg sm:h-11 sm:min-w-11 sm:px-3.5 sm:text-lg"
             style={{
-              backgroundColor: `hsl(${scoreToHue(score as number)}, 85%, 55%)`,
+              backgroundColor: `hsl(${scoreToHue(scoreValue)}, 85%, 55%)`,
             }}
           >
-            {Math.round(score as number)}%
+            {Math.round(scoreValue)}%
           </span>
         ) : (
           <span className="text-base font-semibold text-zinc-500 sm:text-lg">
@@ -86,7 +79,7 @@ function FeedbackRow({ label, feedback, score, href }: FeedbackRowProps) {
         )}
       </td>
 
-      <td className="px-4 py-4 sm:px-6">
+      <td data-label="Rating" className="px-4 py-4 sm:px-6">
         {rating ? (
           <span className="flex items-center gap-2.5">
             <span
@@ -106,8 +99,30 @@ function FeedbackRow({ label, feedback, score, href }: FeedbackRowProps) {
           </span>
         )}
       </td>
+
+      <td
+        data-label="Feedback"
+        className="px-4 py-4 leading-8 text-zinc-200 sm:px-6 sm:text-xl"
+      >
+        {feedback}
+      </td>
     </tr>
   );
+}
+
+interface FeedbackTableProps {
+  feetFeedback: string | null;
+  flareFeedback: string | null;
+  bendFeedback: string | null;
+  kneeFeedback: string | null;
+  kneeFlareFeedback: string | null;
+  feetDistanceScore: number | null;
+  flareScore: number | null;
+  bendScore: number | null;
+  kneeDistanceScore: number | null;
+  kneeFlareScore: number | null;
+  similarityFeedback: string | null;
+  similarity: React.MutableRefObject<number | null>;
 }
 
 export default function FeedbackTable({
@@ -125,17 +140,17 @@ export default function FeedbackTable({
   similarity,
 }: FeedbackTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-orange-500/20">
+    <div className="feedback-table overflow-hidden rounded-2xl border border-orange-500/20">
       <table className="w-full text-left text-sm sm:text-base">
         <thead>
           <tr className="border-b border-orange-500/20 bg-linear-to-r from-orange-500/20 via-amber-500/15 to-orange-500/20 text-[11px] uppercase tracking-[0.25em] text-orange-200 sm:text-sm">
             <th className="px-4 py-4 font-black sm:px-6 sm:py-5">Metric</th>
 
-            <th className="px-4 py-4 font-black sm:px-6 sm:py-5">Feedback</th>
-
             <th className="px-4 py-4 font-black sm:px-6 sm:py-5">Score</th>
 
             <th className="px-4 py-4 font-black sm:px-6 sm:py-5">Rating</th>
+
+            <th className="px-4 py-4 font-black sm:px-6 sm:py-5">Feedback</th>
           </tr>
         </thead>
 

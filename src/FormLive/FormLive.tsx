@@ -6,6 +6,21 @@ import {
 } from "../Form/Backend/calculations";
 import DisplayLive from "./DisplayLive";
 
+const poseConnections: [number, number][] = [
+  [11, 12],
+  [11, 13],
+  [13, 15],
+  [12, 14],
+  [14, 16],
+  [11, 23],
+  [12, 24],
+  [23, 24],
+  [23, 25],
+  [25, 27],
+  [24, 26],
+  [26, 28],
+];
+
 export default function FormLive() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,8 +89,13 @@ export default function FormLive() {
 
       const video = videoRef.current;
       const canvas = canvasRef.current;
+      const aspectRatio = video.videoWidth / video.videoHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
+      if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+        setErrorFeedback("⚠️ Unable to read video dimensions for pose analysis.");
+        return;
+      }
 
       const results = poseLandmarker.detectForVideo(video, performance.now());
 
@@ -83,9 +103,43 @@ export default function FormLive() {
 
       if (results.landmarks.length > 0) {
         const landmarks = results.landmarks[0];
+        const visibleLandmarks = new Set([
+          11,
+          12,
+          dominantHand === "right" ? 14 : 13,
+          dominantHand === "right" ? 16 : 15,
+          dominantHand === "right" ? 24 : 23,
+          25,
+          26,
+          27,
+          28,
+        ]);
 
-        // Draw landmarks
-        landmarks.forEach((landmark) => {
+        poseConnections.forEach(([firstIndex, secondIndex]) => {
+          const first = landmarks[firstIndex];
+          const second = landmarks[secondIndex];
+          if (
+            !first ||
+            !second ||
+            first.visibility <= 0.1 ||
+            second.visibility <= 0.1
+          ) {
+            return;
+          }
+
+          ctx.beginPath();
+          ctx.moveTo(first.x * canvas.width, first.y * canvas.height);
+          ctx.lineTo(second.x * canvas.width, second.y * canvas.height);
+          ctx.strokeStyle = "lime";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        landmarks.forEach((landmark, index) => {
+          if (!visibleLandmarks.has(index) || landmark.visibility <= 0.1) {
+            return;
+          }
+
           ctx.beginPath();
           ctx.arc(
             landmark.x * canvas.width,
@@ -121,6 +175,9 @@ export default function FormLive() {
           leftAnkle.visibility > 0.1 && rightAnkle.visibility > 0.1;
         const kneesVisible =
           leftKnee.visibility > 0.1 && rightKnee.visibility > 0.1;
+        const hipsVisible =
+          landmarks[23].visibility > 0.1 &&
+          landmarks[24].visibility > 0.1;
         const hipVisible = hip.visibility > 0.1;
 
         const keypointsVisibleEnough =
@@ -142,30 +199,51 @@ export default function FormLive() {
 
         let ankleDistance: number | null = null;
         let kneeDistance: number | null = null;
+        let hipDistance: number | null = null;
         let shoulderDistance: number | null = null;
         let flareDistance: number | null = null;
         let elbowAngle: number | null = null;
         let kneeAngle: number | null = null;
 
         if (hipVisible && kneesVisible && anklesVisible) {
-          kneeAngle = calculateAngle(hip, knee, ankle);
+          kneeAngle = calculateAngle(hip, knee, ankle, aspectRatio);
         }
 
         if (shouldersVisible) {
-          shoulderDistance = calculateDistance(rightShoulder, leftShoulder);
+          shoulderDistance = calculateDistance(
+            rightShoulder,
+            leftShoulder,
+            aspectRatio,
+          );
         }
 
         if (elbowVisible && shoulderVisible && wristVisible) {
-          elbowAngle = calculateAngle(shoulder, elbow, wrist);
-          flareDistance = Math.abs(elbow.x - shoulder.x);
+          elbowAngle = calculateAngle(
+            shoulder,
+            elbow,
+            wrist,
+            aspectRatio,
+          );
+          flareDistance = Math.abs(elbow.x - shoulder.x) * aspectRatio;
         }
 
         if (anklesVisible) {
-          ankleDistance = calculateDistance(rightAnkle, leftAnkle);
+          ankleDistance = calculateDistance(
+            rightAnkle,
+            leftAnkle,
+            aspectRatio,
+          );
         }
 
         if (kneesVisible) {
-          kneeDistance = calculateDistance(rightKnee, leftKnee);
+          kneeDistance = calculateDistance(rightKnee, leftKnee, aspectRatio);
+        }
+        if (hipsVisible) {
+          hipDistance = calculateDistance(
+            landmarks[24],
+            landmarks[23],
+            aspectRatio,
+          );
         }
 
         // --- ELBOW ---
@@ -207,18 +285,18 @@ export default function FormLive() {
         // --- KNEES ---
         if (!kneesVisible) {
           setKneeFeedback("⚠️ Unable to detect knees.");
-        } else if (!shouldersVisible) {
-          setKneeFeedback("⚠️ Unable to calculate shoulder distance.");
+        } else if (!hipsVisible) {
+          setKneeFeedback("⚠️ Unable to calculate hip distance.");
         } else if (!kneeDistance) {
           setKneeFeedback("⚠️ Unable to calculate knee distance.");
-        } else if (!shoulderDistance) {
-          setKneeFeedback("⚠️ Unable to calculate shoulder distance.");
-        } else if (kneeDistance < shoulderDistance - 0.08) {
+        } else if (!hipDistance) {
+          setKneeFeedback("⚠️ Unable to calculate hip distance.");
+        } else if (kneeDistance < hipDistance * 0.9) {
           setKneeFeedback("⚠️ Knees too close");
-        } else if (kneeDistance > shoulderDistance + 0.08) {
+        } else if (kneeDistance > hipDistance) {
           setKneeFeedback("⚠️ Knees too far");
         } else {
-          setKneeFeedback("✅ Good knee alignment");
+          setKneeFeedback("✅ Good knee spacing");
         }
         // --- BEND ---
         if (!kneeAngle) {

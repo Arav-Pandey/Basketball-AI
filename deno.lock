@@ -12,11 +12,9 @@
     "packageJson": {
       "dependencies": [
         "npm:@eslint/js@^9.39.1",
-        "npm:@google/genai@^1.43.0",
         "npm:@mediapipe/pose@~0.5.1675469404",
         "npm:@mediapipe/tasks-vision@~0.10.35",
         "npm:@netlify/functions@^5.1.2",
-        "npm:@roboflow/inference-sdk@0.3",
         "npm:@tailwindcss/vite@^4.1.18",
         "npm:@tanstack/react-query@^5.90.21",
         "npm:@tensorflow-models/posenet@^2.2.2",

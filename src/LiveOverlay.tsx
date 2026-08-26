@@ -49,7 +49,6 @@ export default function LiveOverlay() {
                   Deeper review
                 </p>
                 <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-300">
-                  {/* Record your session and get a full breakdown of body mechanics, release, and arc. */}
                   Record your session and get a full breakdown of body mechanics
                   and release.
                 </p>
@@ -57,7 +56,6 @@ export default function LiveOverlay() {
             </div>
           </button>
 
-          {/* id="arc-btn" */}
           <button
             id="live-btn"
             className="group relative overflow-hidden rounded-xl sm:rounded-[1.75rem] border cursor-pointer border-white/10 bg-linear-to-br from-slate-950/95 via-orange-500/10 to-slate-900/85 p-4 sm:p-6 text-left shadow-xl transition hover:-translate-y-1 hover:border-orange-400/40 active:scale-95"
