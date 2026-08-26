@@ -40,7 +40,7 @@ export default function DisplayLive({
         {/* AI OVERLAY */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         />
       </div>
 

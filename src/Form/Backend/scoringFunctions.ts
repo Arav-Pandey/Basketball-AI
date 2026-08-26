@@ -2,8 +2,8 @@ export function scoreElbowFlare(
   flareDistance: number,
   shoulderDistance: number,
 ): number {
-  const WARN = shoulderDistance * 0.18;
-  const MAX = shoulderDistance * 0.32;
+  const WARN = shoulderDistance * 0.12;
+  const MAX = shoulderDistance * 0.24;
 
   if (flareDistance <= WARN) return 100;
   if (flareDistance >= MAX) return 0;
@@ -14,7 +14,7 @@ export function scoreElbowFlare(
 
 export function scoreKneeFlare(kneeFlare: number): number {
   const ideal = 0; // perfectly aligned knee over hip
-  const maxError = 0.3; // matches MAX in getKneeFlareFeedback (was 1.5)
+  const maxError = 0.22; // matches MAX in getKneeFlareFeedback (was 1.5)
 
   const error = Math.abs(kneeFlare - ideal);
   const score = 100 * (1 - error / maxError);
@@ -23,8 +23,8 @@ export function scoreKneeFlare(kneeFlare: number): number {
 }
 
 export function scoreBendAngle(angle: number): number {
-  const idealMin = 125;
-  const idealMax = 140;
+  const idealMin = 128;
+  const idealMax = 138;
 
   // Perfect zone: no error
   if (angle >= idealMin && angle <= idealMax) return 100;
@@ -32,8 +32,8 @@ export function scoreBendAngle(angle: number): number {
   // Distance outside the ideal window
   const error = angle < idealMin ? idealMin - angle : angle - idealMax;
 
-  const maxError = 45; // beyond this, score bottoms out at 40
-  const minScore = 40;
+  const maxError = 35; // beyond this, score bottoms out at minScore
+  const minScore = 25;
 
   const decay = (100 - minScore) * (error / maxError);
   const score = 100 - decay;
@@ -71,15 +71,15 @@ export function scoreFeetDistance(
 ): number {
   const ratio = feetDistance / shoulderDistance;
 
-  const idealMin = 0.95;
-  const idealMax = 1.4;
+  const idealMin = 1.0;
+  const idealMax = 1.3;
 
   if (ratio >= idealMin && ratio <= idealMax) return 100;
 
   const error = ratio < idealMin ? idealMin - ratio : ratio - idealMax;
 
-  const maxError = 0.3;
-  const minScore = 40;
+  const maxError = 0.22;
+  const minScore = 25;
 
   const decay = (100 - minScore) * (error / maxError);
   const score = 100 - decay;

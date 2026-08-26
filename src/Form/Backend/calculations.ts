@@ -1,10 +1,4 @@
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
-import type {
-  KeypointVisibilityProps,
-  MeasurementProps,
-  Measurements,
-  TopFrame,
-} from "../interfaces";
 import type { curry, user } from "../types";
 
 export function getSimilarity(user: user, curry: curry) {
@@ -58,11 +52,32 @@ export function calculateAngle(
 
   return Math.acos(cosine) * (180 / Math.PI);
 }
+
 export function averageLowestKneeAngles(angles: number[], count: number) {
-  if (angles.length === 0) return Infinity;
-  const sorted = [...angles].sort((a, b) => a - b);
-  const lowest = sorted.slice(0, count);
-  return lowest.reduce((sum, a) => sum + a, 0) / lowest.length;
+  const validAngles = angles.filter(Number.isFinite);
+  if (validAngles.length === 0) return Infinity;
+
+  const sampleCount = Math.min(
+    validAngles.length,
+    Math.max(count, Math.ceil(validAngles.length * 0.2)),
+  );
+  const lowest = [...validAngles]
+    .sort((a, b) => a - b)
+    .slice(0, sampleCount);
+
+  // The median is less sensitive to one incorrectly predicted angle.
+  return median(lowest);
+}
+
+interface KeypointVisibilityProps {
+  rightShoulder: NormalizedLandmark;
+  leftShoulder: NormalizedLandmark;
+  elbow: NormalizedLandmark;
+  wrist: NormalizedLandmark;
+  rightAnkle: NormalizedLandmark;
+  leftAnkle: NormalizedLandmark;
+  rightKnee: NormalizedLandmark;
+  leftKnee: NormalizedLandmark;
 }
 
 export function checkKeypointVisibility(
@@ -93,6 +108,15 @@ export function checkKeypointVisibility(
   return true;
 }
 
+export interface Measurements {
+  feetDistance: number | null;
+  kneeDistance: number | null;
+  shoulderDistance: number | null;
+  hipDistance: number | null;
+  flareDistance: number | null;
+  kneeFlare: number | null;
+}
+
 export function emptyMeasurements(): Measurements {
   return {
     feetDistance: null,
@@ -104,45 +128,97 @@ export function emptyMeasurements(): Measurements {
   };
 }
 
+export interface TopFrame {
+  wristY: number;
+  flare: number;
+  shoulderDistance: number;
+  feetDistance: number;
+  kneeDistance: number;
+  kneeFlare: number;
+  kneeAngle: number;
+}
+
+function median(values: number[]): number {
+  const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+
+  if (sorted.length === 0) return 0;
+
+  const middle = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 === 1
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 export function averageTopFrames(
   frames: TopFrame[],
   kneeAngle: number,
   topFrameCount: number,
 ) {
-  const topFrames = [...frames]
-    .sort((a, b) => a.wristY - b.wristY)
-    .slice(0, topFrameCount);
+  if (frames.length === 0) return null;
 
-  if (topFrames.length === 0) return null;
+  const visibleFrames = frames.filter((frame) => Number.isFinite(frame.wristY));
+  if (visibleFrames.length === 0) return null;
 
-  const total = topFrames.reduce(
-    (acc, frame) => ({
-      wristY: acc.wristY + frame.wristY,
-      flare: acc.flare + frame.flare,
-      shoulderDistance: acc.shoulderDistance + frame.shoulderDistance,
-      feetDistance: acc.feetDistance + frame.feetDistance,
-      kneeDistance: acc.kneeDistance + frame.kneeDistance,
-      kneeFlare: acc.kneeFlare + frame.kneeFlare,
-    }),
-    {
-      wristY: 0,
-      flare: 0,
-      shoulderDistance: 0,
-      feetDistance: 0,
-      kneeDistance: 0,
-      kneeFlare: 0,
-    },
+  const sampleCount = Math.min(
+    visibleFrames.length,
+    Math.max(topFrameCount * 3, Math.ceil(visibleFrames.length * 0.2)),
   );
+  const topFrames = [...visibleFrames]
+    .sort((a, b) => a.wristY - b.wristY)
+    .slice(0, sampleCount);
+
+  const medianOf = (getValue: (frame: TopFrame) => number) =>
+    median(topFrames.map(getValue));
 
   return {
-    wristY: total.wristY / topFrames.length,
-    flare: total.flare / topFrames.length,
-    shoulderDistance: total.shoulderDistance / topFrames.length,
-    feetDistance: total.feetDistance / topFrames.length,
-    kneeDistance: total.kneeDistance / topFrames.length,
-    kneeFlare: total.kneeFlare / topFrames.length,
+    wristY: medianOf((frame) => frame.wristY),
+    flare: medianOf((frame) => frame.flare),
+    shoulderDistance: medianOf((frame) => frame.shoulderDistance),
+    feetDistance: medianOf((frame) => frame.feetDistance),
+    kneeDistance: medianOf((frame) => frame.kneeDistance),
+    kneeFlare: medianOf((frame) => frame.kneeFlare),
     kneeAngle,
   };
+}
+
+interface MeasurementProps {
+  details: boolean;
+  latestMeasurementsRef: React.MutableRefObject<Measurements>;
+  lowestKneeAngleRef: React.MutableRefObject<number | null>;
+  kneeDirection: "right" | "left" | "forward" | null;
+  setFlareFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  setFeetFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  setKneeFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  setKneeFlareFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  setKneeDirectionFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  setBendFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  dominantHand: "right" | "left" | null;
+  getFlareFeedbackFromValues: (
+    flareDistance: number | null,
+    shoulderDistance: number | null,
+    details: boolean,
+  ) => string;
+  getFeetDistanceFeedback: (
+    feetDistance: number | null,
+    shoulderDistance: number | null,
+    details: boolean,
+  ) => string;
+  getKneeDistanceFeedback: (
+    kneeDistance: number | null,
+    feetDistance: number | null,
+    details: boolean,
+  ) => string;
+  getBendFeedback: (lowestKneeAngle: number, details: boolean) => string;
+  getKneeFlareFeedback: (
+    kneeFlare: number | null,
+    details: boolean,
+    hipDistance: number | null,
+  ) => string;
+  getKneeDirectionFeedback: (
+    dominantHand: "right" | "left" | null,
+    kneeDirection: "right" | "left" | "forward" | null,
+  ) => string;
 }
 
 export function updateFeedbackFromLatestMeasurements({

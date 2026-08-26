@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import Steph from "./assets/Steph_Image.png";
-import Logo from "./assets/Logo.png";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -8,6 +7,35 @@ export default function Home() {
   const navigate = useNavigate();
   const [activeDefinition, setActiveDefinition] = useState<"form" | null>(null);
   const definitionRef = useRef<HTMLDivElement | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleGetStarted = async () => {
+    try {
+      const response = await fetch("/.netlify/functions/auth", {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+
+      if (response.status === 401) {
+        window.alert("Log in first");
+        return;
+      }
+
+      if (!response.ok) {
+        window.alert("Unable to verify login. Please try again.");
+        return;
+      }
+
+      navigate("/form-home");
+    } catch {
+      window.alert("Unable to verify login. Please try again.");
+    }
+  };
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    window.location.assign("/.netlify/functions/logout");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,7 +58,7 @@ export default function Home() {
         <div className="relative w-full overflow-hidden rounded-2xl border border-orange-500/30 bg-slate-900/70 p-3 shadow-[0_40px_100px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:rounded-4xl sm:p-5 lg:p-8">
           <div className="mb-6 flex flex-col items-center gap-4 sm:mb-8 sm:flex-row sm:justify-between sm:gap-6">
             <img
-              src={Logo}
+              src="/BasketballAI_Logo.png"
               alt="Logo"
               className="h-16 w-auto sm:h-24 lg:h-30"
             />
@@ -38,7 +66,7 @@ export default function Home() {
               Basketball AI
             </h1>
             <img
-              src={Logo}
+              src="/BasketballAI_Logo.png"
               alt="Logo"
               className="hidden h-16 w-auto sm:block sm:h-24 lg:h-30"
             />
@@ -91,12 +119,28 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 text-xl sm:mt-12 sm:flex-row sm:gap-4 sm:text-2xl">
+              <div className="mt-8 flex flex-col items-center gap-6 sm:mt-12">
+                <div className="flex flex-col items-center justify-center gap-3 text-xl sm:flex-row sm:gap-4 sm:text-2xl">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full cursor-pointer rounded-full border border-orange-400/60 px-6 py-3 font-semibold text-orange-200 transition hover:bg-orange-500/10 active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-2xl"
+                  >
+                    Log in
+                  </button>
+                  <button
+                    onClick={() => void handleGetStarted()}
+                    className="w-full cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-orange-500 to-amber-400 px-6 py-3 font-semibold text-slate-950 shadow-xl shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-2xl"
+                  >
+                    Get Started
+                  </button>
+                </div>
                 <button
-                  onClick={() => navigate("/form-home")}
-                  className="w-full cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-orange-500 to-amber-400 px-6 py-3 font-semibold text-slate-950 shadow-xl shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-2xl"
+                  type="button"
+                  onClick={() => void handleSignOut()}
+                  disabled={isSigningOut}
+                  className="cursor-pointer rounded-full border border-white/25 px-5 py-2 text-sm font-semibold text-slate-300 transition hover:border-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Get Started
+                  {isSigningOut ? "Signing out..." : "Sign out"}
                 </button>
               </div>
             </div>

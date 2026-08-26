@@ -2,13 +2,21 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveOverlay from "../../LiveOverlay";
 import Recorder from "./Record/Record";
+import type { PoseModel } from "../Backend/detect";
 
 interface Props {
   setVideoURL: React.Dispatch<React.SetStateAction<string>>;
   videoURL: string;
+  model: PoseModel;
+  setModel: React.Dispatch<React.SetStateAction<PoseModel>>;
 }
 
-export default function FormHome({ setVideoURL, videoURL }: Props) {
+export default function FormHome({
+  setVideoURL,
+  videoURL,
+  model,
+  setModel,
+}: Props) {
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -18,7 +26,7 @@ export default function FormHome({ setVideoURL, videoURL }: Props) {
 
   const navigate = useNavigate();
 
-  const usePreview = () => {
+  const handleUsePreview = () => {
     setVideoURL(videoURL);
     navigate("/form");
   };
@@ -36,7 +44,9 @@ export default function FormHome({ setVideoURL, videoURL }: Props) {
         <Recorder
           setVideoURL={setVideoURL}
           videoURL={videoURL}
-          usePreview={usePreview}
+          onUsePreview={handleUsePreview}
+          model={model}
+          onModelChange={setModel}
         />
       </div>
     </div>

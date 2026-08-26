@@ -1,25 +1,37 @@
-export function getBendFeedback(angle: number, details: boolean) {
-  // Ideal range: 125–140° based on proficient shooters (~133° average)
-  const MIN = 125;
-  const MAX = 140;
+import {
+  scoreBendAngle,
+  scoreElbowFlare,
+  scoreFeetDistance,
+  scoreKneeDistance,
+  scoreKneeFlare,
+} from "./scoringFunctions";
 
+export function getBendFeedback(angle: number, details: boolean) {
+  const MIN = 128;
+  const MAX = 138;
+  const score = scoreBendAngle(angle);
+
+  if (score === 100)
+    return !details
+      ? "Good bend! Keep it up!"
+      : "Good bend! Keep aiming for 128–138°.";
+
+  const isSlight = score >= 65;
   if (angle < MIN)
     return !details
-      ? "Reduce your knee bend (aim around 125–140°)."
-      : `Decrease your bend by ${(MIN - angle).toFixed(1)}° (aim around 125–140°).`;
+      ? `${isSlight ? "Slightly reduce" : "Reduce"} your knee bend (aim around 128–138°).`
+      : `${isSlight ? "Slightly decrease" : "Decrease"} your bend by ${(MIN - angle).toFixed(1)}° (aim around 128–138°).`;
 
   if (angle > MAX)
     return !details
-      ? "Bend your knees more (aim around 125–140°)."
-      : `Increase your bend by ${(angle - MAX).toFixed(1)}° (aim around 125–140°).`;
+      ? `${isSlight ? "Slightly increase" : "Increase"} your knee bend (aim around 128–138°).`
+      : `${isSlight ? "Slightly increase" : "Increase"} your bend by ${(angle - MAX).toFixed(1)}° (aim around 128–138°).`;
 
   return !details
     ? "Good bend! Keep it up!"
-    : `Good bend! Keep aiming for 125-140°.`;
+    : "Good bend! Keep aiming for 128–138°.";
 }
 
-// FIXED: MIN/MAX now match scoreFeetDistance's 0.95x–1.4x shoulder-width band
-// (previously 1.05x–1.5x, which disagreed with the score function).
 export function getFeetDistanceFeedback(
   feetDistance: number | null,
   shoulderDistance: number | null,
@@ -28,8 +40,15 @@ export function getFeetDistanceFeedback(
   if (feetDistance === null) return "Unable to detect feet distance.";
   if (shoulderDistance === null) return "Unable to detect shoulder distance.";
 
-  const MIN = shoulderDistance * 0.95;
-  const MAX = shoulderDistance * 1.4;
+  const score = scoreFeetDistance(feetDistance, shoulderDistance);
+  if (score === 100)
+    return !details
+      ? "Good feet placement! Keep it up!"
+      : "Good feet placement! Keep your feet 1.0–1.3 times your shoulder width apart.";
+
+  const isSlight = score >= 65;
+  const MIN = shoulderDistance;
+  const MAX = shoulderDistance * 1.3;
 
   const percentDiff =
     ((feetDistance - shoulderDistance) / shoulderDistance) * 100;
@@ -38,13 +57,13 @@ export function getFeetDistanceFeedback(
 
   if (feetDistance < MIN)
     return !details
-      ? "Feet are too close together. Try keeping your feet a little wider than your shoulder distance."
-      : `Feet are too close together (${percentAbs}% ${direction} than your shoulder width). Try keeping your feet a little wider than your shoulder distance.`;
+      ? `${isSlight ? "Feet are slightly too close" : "Feet are much too close"} together. Try keeping your feet a little wider than your shoulder distance.`
+      : `Feet are ${isSlight ? "slightly " : "much "}too close together (${percentAbs}% ${direction} than your shoulder width). Try keeping your feet a little wider than your shoulder distance.`;
 
   if (feetDistance > MAX)
     return !details
-      ? "Feet are too far apart. Try bringing your feet closer together, closer to shoulder-width apart."
-      : `Feet are too far apart (${percentAbs}% ${direction} than your shoulder width). Try bringing your feet closer together, closer to shoulder-width apart.`;
+      ? `Feet are ${isSlight ? "slightly " : "much "}too far apart. Try bringing your feet closer together, closer to shoulder-width apart.`
+      : `Feet are ${isSlight ? "slightly " : "much "}too far apart (${percentAbs}% ${direction} than your shoulder width). Try bringing your feet closer together, closer to shoulder-width apart.`;
 
   return !details
     ? "Good feet placement! Keep it up!"
@@ -60,26 +79,24 @@ export function getFlareFeedbackFromValues(
     return "Arms not fully visible. Unable to calculate elbow flare.";
   if (shoulderDistance === null) return "Unable to detect shoulder distance.";
 
-  const WARN = shoulderDistance * 0.1; // Just to warn the user that the flare is starting to show
-  const MAX = shoulderDistance * 0.22; // where it’s clearly problematic
+  const score = scoreElbowFlare(flareDistance, shoulderDistance);
+  if (score === 100)
+    return !details
+      ? "Good elbow alignment! Keep it up!"
+      : "Good elbow alignment! Keep your elbow underneath the ball.";
 
   const percentDiff = Math.abs(
-    ((flareDistance - shoulderDistance) / shoulderDistance) * 100,
+    (flareDistance / shoulderDistance) * 100,
   ).toFixed(1);
 
-  if (flareDistance > MAX)
+  if (score < 65)
     return !details
       ? "Elbow is flaring off of the shooting shoulder too much. Try to keep your shooting elbow directly under the ball."
       : `Elbow is flaring off the shooting shoulder too much (${percentDiff}% of shoulder width). Try keeping your elbow directly under the ball.`;
 
-  if (flareDistance > WARN)
-    return !details
-      ? "Elbow is slightly flaring off the shooting shoulder. Consider keeping your elbow directly under the ball."
-      : `Elbow is slightly flaring off the shooting shoulder (${percentDiff}% of the shoulder width). Consider keeping your elbow directly under the ball.`;
-
   return !details
-    ? "Good elbow alignment! Keep it up!"
-    : `Good elbow alignment! Keep your elbow underneath the ball.`;
+    ? "Elbow is slightly flaring off the shooting shoulder. Consider keeping your elbow directly under the ball."
+    : `Elbow is slightly flaring off the shooting shoulder (${percentDiff}% of the shoulder width). Consider keeping your elbow directly under the ball.`;
 }
 
 export function getKneeFlareFeedback(
@@ -90,26 +107,24 @@ export function getKneeFlareFeedback(
   if (kneeFlare === null)
     return "Knees or hips not fully visible. Unable to calculate knee flare feedback.";
 
-  const WARN = 0.18; // Slight knee flare
-  const MAX = 0.3; // Clearly excessive knee flare
+  const score = scoreKneeFlare(kneeFlare);
+  if (score === 100)
+    return !details
+      ? "Good knee alignment! Keep it up!"
+      : "Good knee alignment! Keep your knees aligned with your hips and toes.";
 
   const percentDiff = hipDistance
     ? ((kneeFlare / hipDistance) * 100).toFixed(1)
     : null;
 
-  if (kneeFlare > MAX)
+  if (score < 65)
     return !details
       ? "Knees are flaring outward too much. Try keeping your knees more in line with your hips and toes."
       : `Knees are flaring outward too much (${percentDiff}% of hip width). Try keeping your knees more in line with your hips and toes.`;
 
-  if (kneeFlare > WARN)
-    return !details
-      ? "Knees are slightly flaring outward. Consider keeping them more aligned during your shot."
-      : `Knees are slightly flaring outward (${percentDiff}% of hip width). Consider keeping them more aligned during your shot.`;
-
   return !details
-    ? "Good knee alignment! Keep it up!"
-    : `Good knee alignment! Keep your knees aligned with your hips and toes.`;
+    ? "Knees are slightly flaring outward. Consider keeping them more aligned during your shot."
+    : `Knees are slightly flaring outward (${percentDiff}% of hip width). Consider keeping them more aligned during your shot.`;
 }
 
 export function getKneeDirectionFeedback(
@@ -140,36 +155,29 @@ export function getKneeDistanceFeedback(
   if (feetDistance === null)
     return "Feet distance was unable to be calculated.";
 
+  const score = scoreKneeDistance(kneeDistance, feetDistance);
+  if (score === 100)
+    return !details
+      ? "Good knee distance! Keep it up!"
+      : "Good knee distance! Keep your knees aligned over your feet.";
+
   const MIN = feetDistance * 0.95;
   const MAX = feetDistance * 1.05;
-  // Keep the feedback severity proportional to the score. These bounds map
-  // to a score of roughly 65%, so above-average scores use gentler wording.
-  const SLIGHTLY_NARROW = feetDistance * 0.775;
-  const SLIGHTLY_WIDE = feetDistance * 1.225;
+  const isSlight = score !== null && score >= 65;
 
   const percentDiff = ((kneeDistance - feetDistance) / feetDistance) * 100;
   const percentAbs = Math.abs(percentDiff).toFixed(1);
   const direction = percentDiff >= 0 ? "wider" : " closer";
 
-  if (kneeDistance < SLIGHTLY_NARROW)
-    return !details
-      ? "Knees too caved inward. Try keeping them aligned over your feet."
-      : `Knees too caved inward (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
-
-  if (kneeDistance > SLIGHTLY_WIDE)
-    return !details
-      ? "Knee distance is too wide. Try keeping them aligned over your feet."
-      : `Knee distance is too wide (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
-
   if (kneeDistance < MIN)
     return !details
-      ? "Knees are slightly caved inward. Try keeping them aligned over your feet."
-      : `Knees are slightly caved inward (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
+      ? `Knees are ${isSlight ? "slightly caved inward" : "too caved inward"}. Try keeping them aligned over your feet.`
+      : `Knees are ${isSlight ? "slightly caved inward" : "too caved inward"} (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
 
   if (kneeDistance > MAX)
     return !details
-      ? "Knee distance is slightly too wide. Try keeping them aligned over your feet."
-      : `Knee distance is slightly too wide (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
+      ? `Knee distance is ${isSlight ? "slightly too wide" : "too wide"}. Try keeping them aligned over your feet.`
+      : `Knee distance is ${isSlight ? "slightly too wide" : "too wide"} (${percentAbs}% ${direction} than your feet distance). Try keeping them aligned over your feet.`;
 
   return !details
     ? "Good knee distance! Keep it up!"

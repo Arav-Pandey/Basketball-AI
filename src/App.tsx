@@ -1,43 +1,119 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { House, PlayCircle } from "lucide-react";
-import { Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
 import Form from "./Form/Backend/Form.tsx";
 import Home from "./Home.tsx";
 import FormHome from "./Form/Frontend/FormHome.tsx";
 import BackgroundLayout from "./BackgroundLayout.tsx";
 import FormLive from "./FormLive/FormLive.tsx";
-import Playmaking from "./PlayMaking/Playmaking.tsx";
+import Login from "./Authentication/Login.tsx";
+import Register from "./Authentication/Register.tsx";
 import Demo from "./Demo.tsx";
 import SectionPageRoute from "./Citations/SectionPageRoute.tsx";
-import { useNavigate } from "react-router-dom";
+import type { PoseModel } from "./Form/Backend/detect";
+
+function AuthGate({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/register";
+  const isPublicRoute =
+    location.pathname === "/" || isAuthPage;
+  const [status, setStatus] = useState<
+    "checking" | "authenticated" | "unauthenticated" | "unavailable"
+  >("checking");
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/.netlify/functions/auth", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+      .then((response) => {
+        if (!active) return;
+        if (response.ok) {
+          setStatus("authenticated");
+        } else if (response.status === 401) {
+          setStatus("unauthenticated");
+        } else {
+          setStatus("unavailable");
+        }
+      })
+      .catch(() => {
+        if (active) setStatus("unavailable");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (status === "checking") return isPublicRoute ? children : null;
+
+  if (status === "unavailable" && !isPublicRoute) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (status === "unauthenticated" && !isPublicRoute) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (status === "authenticated" && isAuthPage) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
   const navigate = useNavigate();
   const [videoURL, setVideoURL] = useState<string>("");
+  const [poseModel, setPoseModel] = useState<PoseModel>("mediapipe");
 
   return (
     <BackgroundLayout>
       <div>
         <div className="min-h-screen w-full overflow-x-hidden text-white">
           <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center px-2 text-center sm:px-2 lg:px-4">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/form-home"
-                element={
-                  <FormHome setVideoURL={setVideoURL} videoURL={videoURL} />
-                }
-              />
-              <Route
-                path="/form"
-                element={<Form videoURL={videoURL} setVideoURL={setVideoURL} />}
-              />
-              <Route path="/form-live" element={<FormLive />} />
-              <Route path="/playmaking" element={<Playmaking />} />
-              <Route path="/sections/:id" element={<SectionPageRoute />} />
-              <Route path="/demo" element={<Demo />} />
-            </Routes>
+            <AuthGate>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path="/form-home"
+                  element={
+                    <FormHome
+                      setVideoURL={setVideoURL}
+                      videoURL={videoURL}
+                      model={poseModel}
+                      setModel={setPoseModel}
+                    />
+                  }
+                />
+                <Route
+                  path="/form"
+                  element={
+                    <Form
+                      videoURL={videoURL}
+                      setVideoURL={setVideoURL}
+                      model={poseModel}
+                    />
+                  }
+                />
+                <Route path="/form-live" element={<FormLive />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/sections/:id" element={<SectionPageRoute />} />
+                <Route path="/demo" element={<Demo />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AuthGate>
           </main>
         </div>
       </div>

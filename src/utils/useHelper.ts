@@ -1,5 +1,15 @@
 import { useEffect } from "react";
-import type { HelperProps } from "../../interfaces";
+
+interface HelperProps {
+  setVideoURL: React.Dispatch<React.SetStateAction<string>>;
+  setVideoFile?: React.Dispatch<React.SetStateAction<File | null>>;
+  streamRef: React.MutableRefObject<MediaStream | null>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  facingMode: "user" | "environment";
+  setRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  chunksRef: React.MutableRefObject<Blob[]>;
+  mediaRecorderRef: React.MutableRefObject<MediaRecorder | null>;
+}
 
 export default function useHelper({
   setVideoURL,

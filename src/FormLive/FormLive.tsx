@@ -6,6 +6,21 @@ import {
 } from "../Form/Backend/calculations";
 import DisplayLive from "./DisplayLive";
 
+const poseConnections: [number, number][] = [
+  [11, 12],
+  [11, 13],
+  [13, 15],
+  [12, 14],
+  [14, 16],
+  [11, 23],
+  [12, 24],
+  [23, 24],
+  [23, 25],
+  [25, 27],
+  [24, 26],
+  [26, 28],
+];
+
 export default function FormLive() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,9 +98,43 @@ export default function FormLive() {
 
       if (results.landmarks.length > 0) {
         const landmarks = results.landmarks[0];
+        const visibleLandmarks = new Set([
+          11,
+          12,
+          dominantHand === "right" ? 14 : 13,
+          dominantHand === "right" ? 16 : 15,
+          dominantHand === "right" ? 24 : 23,
+          25,
+          26,
+          27,
+          28,
+        ]);
 
-        // Draw landmarks
-        landmarks.forEach((landmark) => {
+        poseConnections.forEach(([firstIndex, secondIndex]) => {
+          const first = landmarks[firstIndex];
+          const second = landmarks[secondIndex];
+          if (
+            !first ||
+            !second ||
+            first.visibility <= 0.1 ||
+            second.visibility <= 0.1
+          ) {
+            return;
+          }
+
+          ctx.beginPath();
+          ctx.moveTo(first.x * canvas.width, first.y * canvas.height);
+          ctx.lineTo(second.x * canvas.width, second.y * canvas.height);
+          ctx.strokeStyle = "lime";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        landmarks.forEach((landmark, index) => {
+          if (!visibleLandmarks.has(index) || landmark.visibility <= 0.1) {
+            return;
+          }
+
           ctx.beginPath();
           ctx.arc(
             landmark.x * canvas.width,

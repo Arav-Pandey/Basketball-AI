@@ -4,7 +4,10 @@ import { AlertTriangle, Play, Pause } from "lucide-react";
 import { useEffect, useState } from "react";
 import VideoSlider from "./VideoSlider";
 import FeedbackTable from "./FeedbackTable";
-import type { DisplayProps } from "../interfaces";
+import { useNavigate } from "react-router-dom";
+import Compare from "../Backend/Compare";
+import OverallScoreHeader from "../Backend/OverallScoreHeader";
+import type { prevMeasurements } from "../types";
 
 function EmojiGuide({
   emoji,
@@ -35,10 +38,43 @@ function EmojiGuide({
   );
 }
 
+interface DisplayProps {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  rewatchFeedback: () => void;
+  retake: () => void;
+  prevMeasurements: prevMeasurements;
+  hasPreviousMeasurements: boolean;
+  feetFeedback: string | null;
+  flareFeedback: string | null;
+  kneeDirectionFeedback: string | null;
+  similarityFeedback: string | null;
+  errorFeedback: string | null;
+  flareScore: number | null;
+  kneeFlareScore: number | null;
+  similarity: React.RefObject<number | null>;
+  setDominantHand: React.Dispatch<
+    React.SetStateAction<"left" | "right" | null>
+  >;
+  bendFeedback: string | null;
+  bendScore: number | null;
+  feetDistanceScore: number | null;
+  kneeDistanceScore: number | null;
+  kneeFeedback: string | null;
+  kneeFlareFeedback: string | null;
+  setDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  details: boolean;
+  isAnalyzing: boolean;
+  analysisProgress: number;
+}
+
 export default function Display({
   videoRef,
   canvasRef,
   rewatchFeedback,
+  retake,
+  prevMeasurements,
+  hasPreviousMeasurements,
   feetFeedback,
   flareFeedback,
   similarityFeedback,
@@ -55,8 +91,13 @@ export default function Display({
   kneeFlareScore,
   setDetails,
   details,
+  isAnalyzing,
+  analysisProgress,
 }: DisplayProps) {
+  const navigate = useNavigate();
+
   const [isPaused, setIsPaused] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   // Timeline state
   const [currentTime, setCurrentTime] = useState(0);
@@ -120,7 +161,7 @@ export default function Display({
   }, [videoRef]);
 
   const togglePause = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || isAnalyzing) return;
 
     if (videoRef.current.paused) {
       videoRef.current.play();
@@ -132,6 +173,7 @@ export default function Display({
   };
 
   const handleRewatch = () => {
+    if (isAnalyzing) return;
     rewatchFeedback();
     setIsPaused(false);
 
@@ -139,8 +181,14 @@ export default function Display({
     setCurrentTime(0);
   };
 
+  const handleRetake = () => {
+    if (isAnalyzing) return;
+    retake();
+    navigate("/form-home");
+  };
+
   const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || isAnalyzing) return;
 
     const newTime = Number(event.target.value);
 
@@ -157,12 +205,21 @@ export default function Display({
     <div className="flex w-full flex-col items-center px-4 py-6 sm:px-6 sm:py-8">
       <HandOverlay setDominantHand={setDominantHand} />
 
+      <OverallScoreHeader
+        bendScore={bendScore}
+        flareScore={flareScore}
+        kneeFlareScore={kneeFlareScore}
+        feetDistanceScore={feetDistanceScore}
+        kneeDistanceScore={kneeDistanceScore}
+      />
+
       <div className="grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_minmax(0,4fr)_minmax(0,1fr)] items-center gap-3 sm:gap-6">
         {/* Pause / Resume */}
         <div className="min-w-0 justify-self-end">
           <button
             onClick={togglePause}
-            className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-600 bg-zinc-800 px-3 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-700 hover:brightness-110 active:scale-95 sm:px-5 sm:py-4 sm:text-base"
+            disabled={isAnalyzing}
+            className="ml-6 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-600 bg-zinc-800 px-3 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-700 hover:brightness-110 active:scale-95 sm:px-5 sm:py-4 sm:text-base"
           >
             {isPaused ? <Play size={18} /> : <Pause size={18} />}
 
@@ -170,6 +227,14 @@ export default function Display({
               {isPaused ? "Resume" : "Pause"}
             </span>
           </button>
+          {hasPreviousMeasurements && (
+            <button
+              onClick={() => setShowComparison(true)}
+              className="mt-10 cursor-pointer rounded-xl border-2 border-orange-500 bg-zinc-900 px-3 py-1 text-sm font-bold tracking-wide text-orange-500 shadow-md shadow-orange-500/10 transition hover:scale-[1.02] hover:bg-orange-500 hover:text-zinc-950 hover:shadow-orange-500/30 active:scale-95 sm:px-4 sm:py-2 sm:text-base"
+            >
+              Show Comparison
+            </button>
+          )}
         </div>
 
         <div className="relative w-full min-w-0">
@@ -187,6 +252,42 @@ export default function Display({
                 ref={canvasRef}
                 className="pointer-events-none absolute inset-0 h-full w-full"
               />
+
+              {isAnalyzing && (
+                <div
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-slate-950/95 px-6 text-center"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-300/25 border-t-orange-300" />
+                  <div>
+                    <p className="text-xl font-bold text-white">
+                      Loading analysis
+                    </p>
+                    <p className="mt-1 text-sm text-slate-300">
+                      Preparing pose data before playback
+                    </p>
+                  </div>
+                  <div className="w-full max-w-xs">
+                    <div
+                      className="h-2 overflow-hidden rounded-full bg-white/10"
+                      role="progressbar"
+                      aria-label="Analysis progress"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={Math.round(analysisProgress * 100)}
+                    >
+                      <div
+                        className="h-full rounded-full bg-orange-400 transition-[width] duration-150"
+                        style={{ width: `${analysisProgress * 100}%` }}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs text-slate-400">
+                      {Math.round(analysisProgress * 100)}%
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -198,15 +299,23 @@ export default function Display({
           />
         </div>
 
-        {/* Rewatch */}
-        <div className="min-w-0 justify-self-start">
+        {/* Rewatch + Retake */}
+        <div className="flex min-w-0 flex-col items-center gap-3 justify-self-start">
           <button
             onClick={handleRewatch}
+            disabled={isAnalyzing}
             className="cursor-pointer rounded-xl bg-linear-to-r from-orange-500 to-amber-400 px-3 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:px-5 sm:py-4 sm:text-base"
           >
             <span className="hidden sm:inline">Rewatch Feedback</span>
-
             <span className="sm:hidden">Rewatch</span>
+          </button>
+
+          <button
+            onClick={handleRetake}
+            disabled={isAnalyzing}
+            className="cursor-pointer rounded-xl border-2 border-orange-500 bg-zinc-900 px-3 py-1 text-sm font-bold tracking-wide text-orange-500 shadow-md shadow-orange-500/10 transition hover:scale-[1.02] hover:bg-orange-500 hover:text-zinc-950 hover:shadow-orange-500/30 active:scale-95 sm:px-5 sm:py-2 sm:text-base mt-10"
+          >
+            Retake
           </button>
         </div>
       </div>
@@ -303,6 +412,18 @@ export default function Display({
           )}
         </div>
       </div>
+
+      {showComparison && (
+        <Compare
+          prevMeasurements={prevMeasurements}
+          ankleDistanceScore={feetDistanceScore}
+          kneeDistanceScore={kneeDistanceScore}
+          flareScore={flareScore}
+          kneeFlareScore={kneeFlareScore}
+          kneeBendScore={bendScore}
+          onClose={() => setShowComparison(false)}
+        />
+      )}
     </div>
   );
 }
