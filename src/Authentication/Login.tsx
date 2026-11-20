@@ -51,7 +51,7 @@ export default function Login() {
 
         <div className="mt-10 text-center sm:mt-12">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">
-            Welcome back
+            Welcome
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
             Ready to get better?
@@ -84,7 +84,11 @@ export default function Login() {
         </a>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
-          <ShieldCheck aria-hidden="true" size={17} className="text-orange-300" />
+          <ShieldCheck
+            aria-hidden="true"
+            size={17}
+            className="text-orange-300"
+          />
           <span>Secure sign-in. Your account stays protected.</span>
         </div>
 

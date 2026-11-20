@@ -6,8 +6,6 @@ interface Props {
   summary: string;
   videoLink: string;
   videoDescription: string;
-  diagramImage?: string;
-  diagramDescription?: string;
 }
 
 export default function SectionPage({
@@ -16,8 +14,6 @@ export default function SectionPage({
   summary,
   videoLink,
   videoDescription,
-  diagramImage,
-  diagramDescription,
 }: Props) {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -33,13 +29,6 @@ export default function SectionPage({
       <div className="mx-auto max-w-4xl">
         <div className="relative">
           <div className="relative z-10">
-            <div className="mb-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3">
-              <p className="text-sm text-orange-100">
-                If you came from deeper analysis, the page you were on is still
-                open in another tab.
-              </p>
-            </div>
-
             <div className="mb-8 flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-3xl">
                 🏀
@@ -61,7 +50,7 @@ export default function SectionPage({
               </p>
             </div>
 
-            <div className="mb-8 overflow-hidden rounded-2xl border border-orange-500/20 bg-zinc-900/60 shadow-lg">
+            <div className="mb-8 w-full mx-auto max-w-4xl overflow-hidden rounded-2xl border border-orange-500/20 bg-zinc-900/60 shadow-lg">
               <div className="border-b border-orange-500/20 bg-orange-500/10 px-5 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-400">
                   Watch & Learn
@@ -74,9 +63,9 @@ export default function SectionPage({
                 </h3>
               </div>
 
-              <div className="aspect-video">
+              <div className="w-full max-w-3xl aspect-video mx-auto">
                 <iframe
-                  className="h-full w-full"
+                  className="h-full w-full rounded-lg"
                   src={toEmbedUrl(videoLink)}
                   title={title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -85,33 +74,13 @@ export default function SectionPage({
               </div>
             </div>
 
-            {diagramImage && diagramDescription && (
-              <div className="mb-8 overflow-hidden rounded-2xl border border-orange-500/20 bg-zinc-900/60 shadow-lg">
-                <div className="border-b border-orange-500/20 bg-orange-500/10 px-5 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-400">
-                    Visual Breakdown
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold text-white">
-                    Diagram
-                  </h2>
-                  <h3 className="mt-2 text-lg text-zinc-300">
-                    {diagramDescription}
-                  </h3>
-                </div>
-
-                <div className="flex items-center justify-center bg-zinc-950/40 p-4">
-                  <img
-                    src={diagramImage}
-                    alt={diagramDescription || `${title} diagram`}
-                    className="max-h-125 w-full rounded-lg object-contain"
-                  />
+            {content && (
+              <div className="mb-8 mx-auto w-full max-w-4xl overflow-hidden rounded-2xl border border-orange-500/30 bg-zinc-900/60 shadow-[0_0_20px_-6px_rgba(249,115,22,0.2)] backdrop-blur-sm">
+                <div className="bg-orange-500/10 px-6 py-5 whitespace-pre-line text-base leading-relaxed text-zinc-200 selection:bg-orange-500/40 selection:text-orange-100 sm:text-lg sm:leading-8">
+                  {content}
                 </div>
               </div>
             )}
-
-            <div className="whitespace-pre-line text-lg leading-9 text-zinc-300 selection:bg-orange-500/40">
-              {content}
-            </div>
           </div>
         </div>
       </div>

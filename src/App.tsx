@@ -121,7 +121,7 @@ export default function App() {
         <div className="min-h-screen w-full overflow-x-hidden text-white">
           <main
             className={`flex w-full flex-col items-center px-0 text-center ${
-              isAuthPage ? "min-h-[100dvh]" : "min-h-screen"
+              isAuthPage ? "min-h-dvh" : "min-h-screen"
             } ${isAuthPage ? "" : "app-main"}`}
           >
             <AuthGate>

@@ -43,15 +43,15 @@ export default function Home() {
             <img
               src="/BasketballAI_Logo.png"
               alt="Logo"
-              className="h-16 w-auto sm:h-24 lg:h-30"
+              className="h-13 w-auto sm:h-20 lg:h-26"
             />
-            <h1 className="text-center text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
+            <h1 className="text-center text-2xl font-bold sm:text-3xl md:text-4xl lg:text-8xl">
               Basketball AI
             </h1>
             <img
               src="/BasketballAI_Logo.png"
               alt="Logo"
-              className="hidden h-16 w-auto sm:block sm:h-24 lg:h-30"
+              className="hidden h-13 w-auto sm:block sm:h-20 lg:h-26"
             />
           </div>
 
@@ -59,7 +59,7 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-6 text-center sm:space-y-8">
               <div className="space-y-4">
                 <div className="relative mx-auto max-w-2xl">
-                  <h2 className="text-xl font-bold tracking-wide text-white sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+                  <h2 className="text-xl font-bold tracking-wide text-white sm:text-2xl md:text-3xl lg:text-4xl">
                     Get better shooting accuracy with smarter and deeper
                     feedback on your shot
                   </h2>
@@ -69,13 +69,16 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="mt-6 inline-flex items-center gap-2 text-base leading-7 text-orange-300 underline decoration-orange-400/60 underline-offset-4 transition hover:text-orange-100 sm:mt-8 sm:text-lg lg:text-2xl"
                   >
-                    <PlayCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    <PlayCircle
+                      className="h-5 w-5 shrink-0"
+                      aria-hidden="true"
+                    />
                     Instructions Page
                   </a>
                 </div>
               </div>
 
-              <div className="mt-8 flex w-full flex-col items-center gap-4 sm:mt-12">
+              <div className="mt-5 flex w-full flex-col items-center gap-4 sm:mt-8">
                 <div className="grid w-full max-w-md grid-cols-2 gap-3 sm:gap-5">
                   <button
                     onClick={() => void handleGetStarted()}
@@ -108,7 +111,7 @@ export default function Home() {
                 <img
                   src={Steph}
                   alt="Basketball illustration"
-                  className="relative mx-auto h-60 sm:h-66 lg:h-72 w-auto object-contain"
+                  className="relative mx-auto h-48 sm:h-52 lg:h-60 w-auto object-contain rounded-2xl"
                 />
                 <div className="mt-2 sm:mt-3 rounded-2xl sm:rounded-3xl bg-slate-900/85 p-3 sm:p-4 text-xl sm:text-s text-slate-300 ring-1 ring-white/10">
                   <p className="font-semibold text-white">

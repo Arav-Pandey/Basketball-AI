@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Display from "../Frontend/Display";
 import {
   emptyMeasurements,
@@ -36,11 +31,7 @@ interface Props {
   analysisId: string;
 }
 
-export default function Form({
-  videoURL,
-  setVideoURL,
-  analysisId,
-}: Props) {
+export default function Form({ videoURL, setVideoURL, analysisId }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [feetFeedback, setFeetFeedback] = useState<string | null>(null);
@@ -113,7 +104,10 @@ export default function Form({
 
         saveCareerSession(result.session, result.profileCacheKey);
       } catch (error) {
-        console.error("Could not save career session to the user profile.", error);
+        console.error(
+          "Could not save career session to the user profile.",
+          error,
+        );
         setErrorFeedback(
           "⚠️ Analysis finished, but career history could not be saved to your profile. Please check your connection and try again.",
         );

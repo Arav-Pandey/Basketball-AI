@@ -21,8 +21,6 @@ export default function SectionPageRoute() {
       summary={section.summary}
       videoLink={section.videoLink}
       videoDescription={section.videoDescription}
-      diagramImage={section.diagramImage ?? undefined}
-      diagramDescription={section.diagramDescription ?? undefined}
     />
   );
 }

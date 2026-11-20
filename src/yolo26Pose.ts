@@ -88,7 +88,8 @@ function loadRuntime(): Promise<Ort> {
         reject(new Error("ONNX Runtime did not load."));
       }
     };
-    script.onerror = () => reject(new Error("Unable to download ONNX Runtime."));
+    script.onerror = () =>
+      reject(new Error("Unable to download ONNX Runtime."));
     document.head.appendChild(script);
   });
 }

@@ -1,9 +1,3 @@
-import FeetDirection from "../assets/Feet_Direction_Diagram.webp";
-import ElbowFlare from "../assets/Elbow_Flare_Diagram.png";
-import FeetDistance from "../assets/Feet_Distance_Diagram.png";
-import KneeDistance from "../assets/Knee_Distance_Diagram.png";
-import KneeDirection from "../assets/Knee_Direction_Diagram.webp";
-
 export type Section = {
   id: string;
   title: string;
@@ -12,8 +6,6 @@ export type Section = {
   summary: string;
   videoLink: string;
   videoDescription: string;
-  diagramImage?: string;
-  diagramDescription?: string;
 };
 
 export const sections: Section[] = [
@@ -21,8 +13,7 @@ export const sections: Section[] = [
     id: "feet-direction",
     title: "Feet Direction",
     description: "Learn why slightly turning the feet improves alignment.",
-    content: `
-In a YouTube video by Coach Collin Castell (https://www.youtube.com/watch?v=XymY8gbXg90), he explains that slightly turning the feet makes it easier to keep the elbow underneath the basketball and aligned with the hoop. This supports using a small outward foot angle rather than pointing both feet perfectly straight.
+    content: `In a YouTube video by Coach Collin Castell (https://www.youtube.com/watch?v=XymY8gbXg90), he explains that slightly turning the feet makes it easier to keep the elbow underneath the basketball and aligned with the hoop. This supports using a small outward foot angle rather than pointing both feet perfectly straight.
 
 According to Breakthrough Basketball (https://www.breakthroughbasketball.com/training/fight-for-feet), "Feet between 10-12 o'clock... If your toes are pointing somewhere between 10 & 12 o'clock you are in good shape." This supports measuring foot direction within a slight outward range.
 `,
@@ -31,17 +22,13 @@ According to Breakthrough Basketball (https://www.breakthroughbasketball.com/tra
     videoLink: "https://www.youtube.com/watch?v=XymY8gbXg90",
     videoDescription:
       "Watch this video to learn about what direction your feet should be facing while shooting a basketball.",
-    diagramImage: FeetDirection,
-    diagramDiscription:
-      "What direction your feet should be facing when you shoot a basketball.",
   },
   {
     id: "elbow-flare",
     title: "Elbow Flare",
     description:
       "Learn why a small amount of elbow flare is acceptable but elbow should mostly be underneath the basketball.",
-    content: `
-Joe Haefner, co-founder of Breakthrough Basketball, states on https://www.breakthroughbasketball.com/qa/q1533, "Having your elbow SLIGHTLY out isn't a big deal." This supports allowing a small amount of elbow flare instead of requiring perfect alignment.
+    content: `Joe Haefner, co-founder of Breakthrough Basketball, states on https://www.breakthroughbasketball.com/qa/q1533, "Having your elbow SLIGHTLY out isn't a big deal." This supports allowing a small amount of elbow flare instead of requiring perfect alignment.
 
 In the same YouTube video by Coach Collin Castell (https://www.youtube.com/watch?v=XymY8gbXg90), he explains that a "fly away elbow" or "chicken wing" negatively affects shooting form. This is why the program checks whether the shooter's elbow remains underneath the ball by comparing its horizontal position to the shoulder.
 `,
@@ -49,27 +36,20 @@ In the same YouTube video by Coach Collin Castell (https://www.youtube.com/watch
     videoLink: "https://www.youtube.com/watch?v=XymY8gbXg90",
     videoDescription:
       "Watch this video to learn how to fix your elbow flare while shooting a basketball.",
-    diagramImage: ElbowFlare,
-    diagramDiscription:
-      "What your elbow placement should look like while you shoot a basketball.",
   },
 
   {
     id: "knee-bend",
     title: "Knee Bend Angle",
     description: "Learn why 125-140° of bend angle is ideal.",
-    content: `
-A biomechanics study from https://repository.stcloudstate.edu/cgi/viewcontent.cgi?article=1021&context=pess_etds found that "less knee flexion was associated with higher accuracy," with skilled shooters averaging approximately 133° of knee flexion during the preparation phase. This supports using a target range of approximately 125°-140°.
+    content: `A biomechanics study from https://repository.stcloudstate.edu/cgi/viewcontent.cgi?article=1021&context=pess_etds found that "less knee flexion was associated with higher accuracy," with skilled shooters averaging approximately 133° of knee flexion during the preparation phase. This supports using a target range of approximately 125°-140°.
 
 According to Brian McCormick, Ph.D., on https://180shooter.com/five-fake-fundamentals-in-shooting-a-basketball, shooters do not need to squat deeply before shooting but should bend enough to maintain balance and generate upward force. This further supports using a moderate knee bend instead of a deep squat.
 `,
-    summary: `Knee bend is the amount your knees flex before you begin your shot. Bending your knees allows you to generate power from your legs instead of relying only on your arms. This leads to better balance, smoother motion, and greater shooting range. You want to bend around (125-140)° during your shot.`,
+    summary: `Knee bend is the amount your knees flex before you begin your shot. Bending your knees allows you to generate power from your legs instead of relying only on your arms. This leads to better balance, smoother motion, and greater shooting range. You want to bend around 125-140° during your shot.`,
     videoLink: "https://www.youtube.com/watch?v=45IqPcVgeVM",
     videoDescription:
       "Watch this video to learn how much you should be bending while shooting a basketball.",
-    diagramImage: FeetDistance,
-    diagramDiscription:
-      "How bent your knees should look while shooting a basketball.",
   },
 
   {
@@ -77,8 +57,7 @@ According to Brian McCormick, Ph.D., on https://180shooter.com/five-fake-fundame
     title: "Feet Distance",
     description:
       "Learn why a stance with your feet a little wider than your shoulder width is part of proper form.",
-    content: `
-According to https://www.stpaul.gov/DocumentCenter/View2/69611.pdf, "Have your feet about shoulder width apart." This supports using shoulder width as the baseline measurement for stance.
+    content: `According to https://www.stpaul.gov/DocumentCenter/View2/69611.pdf, "Have your feet about shoulder width apart." This supports using shoulder width as the baseline measurement for stance.
 
 In a YouTube video by Coach Dave Love | NBA Shooting Coach (https://www.youtube.com/watch?v=fs0h2LTaPbc), he recommends that players position their feet slightly outside the widest part of their hips. This supports giving feedback when the player's stance is slightly wider than shoulder width.
 `,
@@ -87,27 +66,20 @@ In a YouTube video by Coach Dave Love | NBA Shooting Coach (https://www.youtube.
     videoLink: "https://www.youtube.com/watch?v=NXWMamf8AIk&t=25s",
     videoDescription:
       "Watch this video to learn how far apart your feet should be while shooting a basketball.",
-    diagramImage: FeetDistance,
-    diagramDiscription:
-      "How far apart your feet should be while shooting a basketball.",
   },
 
   {
     id: "knee-distance",
     title: "Knee Distance",
     description: "Learn why caved knees are not part of proper form.",
-    content: `
-According to Coury & Buehler Physical Therapy (https://cbphysicaltherapy.com/form-essential-basketball-fundamentals/), "When landing or jumping, the knees should never collapse inward." This supports detecting when the knees move inward relative to the feet.
+    content: `According to Coury & Buehler Physical Therapy (https://cbphysicaltherapy.com/form-essential-basketball-fundamentals/), "When landing or jumping, the knees should never collapse inward." This supports detecting when the knees move inward relative to the feet.
 
 In a YouTube video by Coach Dave Love | NBA Shooting Coach (https://www.youtube.com/watch?v=emI6Au1ZPHE), he explains that a wide, balanced base allows players to create force more efficiently, while having the legs in different positions reduces stability. This supports checking that the knees stay aligned with the feet rather than collapsing inward or flaring excessively outward.
 `,
-    summary: `Knee distance is the space between your knees while preparing to shoot. Keeping your knees just a little closer than hip-width creates a stable base and helps maintain balance. Proper knee distance also allows for efficient power transfer from your legs to your shot.`,
+    summary: `Knee distance is the space between your knees while preparing to shoot. Keeping your knees just a little closer than hip-width creates a stable base and helps maintain balance. Also aim for knees to be facing 10-12 o'clock to maintain proper alignment. Proper knee distance also allows for efficient power transfer from your legs to your shot.`,
     videoLink: "https://www.youtube.com/watch?v=emI6Au1ZPHE",
     videoDescription:
       "Watch this video to learn how far apart your knees should be while shooting a basketball.",
-    diagramImage: KneeDistance,
-    diagramDiscription:
-      "How far apart your knees should be while shooting a basketball.",
   },
 
   {
@@ -115,8 +87,7 @@ In a YouTube video by Coach Dave Love | NBA Shooting Coach (https://www.youtube.
     title: "Knee Flare",
     description:
       "Learn why the knees should stay aligned with the feet rather than flaring outward.",
-    content: `
-Breakthrough Basketball notes that a balanced base and proper alignment help the body generate force efficiently, and that knees should remain in a stable position throughout the shot. This supports checking that the knees do not flare excessively outward during the motion.
+    content: `Breakthrough Basketball notes that a balanced base and proper alignment help the body generate force efficiently, and that knees should remain in a stable position throughout the shot. This supports checking that the knees do not flare excessively outward during the motion.
 
 Coach Dave Love | NBA Shooting Coach explains that keeping the knees aligned with the feet helps maintain balance and improves the ability to create force from the lower body. That makes knee flare an important part of form analysis.
 `,
@@ -124,9 +95,6 @@ Coach Dave Love | NBA Shooting Coach explains that keeping the knees aligned wit
     videoLink: "https://www.youtube.com/watch?v=emI6Au1ZPHE",
     videoDescription:
       "Watch this video to learn where your knees should be pointing while shooting a basketball.",
-    diagramImage: KneeDirection,
-    diagramDiscription:
-      "Ideal amount that your knees should be facing away from the basket while shooting a basketball.",
   },
   {
     id: "knee-direction",
@@ -142,9 +110,6 @@ Coach Dave Love | NBA Shooting Coach explains that keeping the knees aligned wit
     videoLink: "https://www.youtube.com/watch?v=pCngjV2NAJg",
     videoDescription:
       "Watch this video to learn about what direction your knees should be facing while shooting a basketball.",
-    diagramImage: KneeDirection,
-    diagramDiscription:
-      "Where your knees should be facing while shooting a basketball (opposite for left-handed shooters).",
   },
   {
     id: "pros",
@@ -155,7 +120,6 @@ Coach Dave Love | NBA Shooting Coach explains that keeping the knees aligned wit
     summary:
       "Basketball AI compares your shooting form to a baseline created from a video of Stephen Curry's shot. Using AI-powered pose detection, the app tracks key body landmarks throughout your shooting motion and measures important mechanics such as knee bend, elbow flare, and other form metrics. These measurements are then compared against Curry's baseline to calculate an overall similarity score. Along with the score, Basketball AI identifies specific areas where your form differs and provides targeted feedback to help you make adjustments and develop more consistent shooting mechanics.",
     videoLink: "https://www.youtube.com/watch?v=_anxl_hE9jQ",
-    videoDescription:
-      "This is the video I used to make the baseline for Steph Curry.",
+    videoDescription: "The video used to make the baseline for Steph Curry.",
   },
 ];

@@ -7,64 +7,19 @@ import FeedbackTable from "./FeedbackTable";
 import { useNavigate } from "react-router-dom";
 import Compare from "../Backend/Compare";
 import OverallScoreHeader from "../Backend/OverallScoreHeader";
-import type { prevMeasurements } from "../types";
-
-function EmojiGuide({
-  emoji,
-  meaning,
-  color,
-}: {
-  emoji: string;
-  meaning: string;
-  color: string;
-}) {
-  return (
-    <div
-      className="flex items-center gap-2 rounded-full border px-3 py-1.5"
-      style={{
-        borderColor: `hsl(${color} / 0.2)`,
-        backgroundColor: `hsl(${color} / 0.1)`,
-      }}
-    >
-      <span className="text-xl">{emoji}</span>
-
-      <span
-        className="text-sm font-semibold"
-        style={{ color: `hsl(${color})` }}
-      >
-        {meaning}
-      </span>
-    </div>
-  );
-}
-
-interface DisplayProps {
-  videoRef: React.RefObject<HTMLVideoElement | null>;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  rewatchFeedback: () => void;
-  retake: () => void;
-  prevMeasurements: prevMeasurements;
-  hasPreviousMeasurements: boolean;
-  feetFeedback: string | null;
-  flareFeedback: string | null;
-  kneeDirectionFeedback: string | null;
-  similarityFeedback: string | null;
-  errorFeedback: string | null;
-  flareScore: number | null;
-  kneeFlareScore: number | null;
-  similarity: React.RefObject<number | null>;
-  setDominantHand: React.Dispatch<
-    React.SetStateAction<"left" | "right" | null>
-  >;
-  bendFeedback: string | null;
-  bendScore: number | null;
-  feetDistanceScore: number | null;
-  kneeDistanceScore: number | null;
-  kneeFeedback: string | null;
-  kneeFlareFeedback: string | null;
-  isAnalyzing: boolean;
-  analysisProgress: number;
-}
+import {
+  EmojiGuide,
+  handleDurationChange,
+  handleLoadedMetadata,
+  handlePause,
+  handlePlay,
+  handleRetake,
+  handleRewatch,
+  handleSeek,
+  handleTimeUpdate,
+  togglePause,
+  type DisplayProps,
+} from "./DisplayHelpers";
 
 export default function Display({
   videoRef,
@@ -114,31 +69,17 @@ export default function Display({
 
     if (!video) return;
 
-    const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(video.duration);
-    };
-
-    const handleDurationChange = () => {
-      setDuration(video.duration);
-    };
-
-    const handlePlay = () => {
-      setIsPaused(false);
-    };
-
-    const handlePause = () => {
-      setIsPaused(true);
-    };
-
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    video.addEventListener("durationchange", handleDurationChange);
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
+    video.addEventListener("timeupdate", () =>
+      handleTimeUpdate(setCurrentTime, video),
+    );
+    video.addEventListener("loadedmetadata", () =>
+      handleLoadedMetadata(video, setDuration),
+    );
+    video.addEventListener("durationchange", () =>
+      handleDurationChange(video, setDuration),
+    );
+    video.addEventListener("play", () => handlePlay(setIsPaused));
+    video.addEventListener("pause", () => handlePause(setIsPaused));
 
     // In case metadata has already loaded before this effect ran.
     if (Number.isFinite(video.duration)) {
@@ -148,49 +89,19 @@ export default function Display({
     setCurrentTime(video.currentTime);
 
     return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      video.removeEventListener("durationchange", handleDurationChange);
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("timeupdate", () =>
+        handleTimeUpdate(setCurrentTime, video),
+      );
+      video.removeEventListener("loadedmetadata", () =>
+        handleLoadedMetadata(video, setDuration),
+      );
+      video.removeEventListener("durationchange", () =>
+        handleDurationChange(video, setDuration),
+      );
+      video.removeEventListener("play", () => handlePlay(setIsPaused));
+      video.removeEventListener("pause", () => handlePause(setIsPaused));
     };
   }, [videoRef]);
-
-  const togglePause = () => {
-    if (!videoRef.current || isAnalyzing) return;
-
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPaused(false);
-    } else {
-      videoRef.current.pause();
-      setIsPaused(true);
-    }
-  };
-
-  const handleRewatch = () => {
-    if (isAnalyzing) return;
-    rewatchFeedback();
-    setIsPaused(false);
-
-    // Reset timeline to beginning
-    setCurrentTime(0);
-  };
-
-  const handleRetake = () => {
-    if (isAnalyzing) return;
-    retake();
-    navigate("/form-home");
-  };
-
-  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current || isAnalyzing) return;
-
-    const newTime = Number(event.target.value);
-
-    videoRef.current.currentTime = newTime;
-    setCurrentTime(newTime);
-  };
 
   const progressPercent =
     duration > 0
@@ -213,7 +124,7 @@ export default function Display({
         {/* Pause / Resume */}
         <div className="col-start-1 row-start-2 min-w-0 justify-self-stretch sm:col-auto sm:row-auto sm:justify-self-end">
           <button
-            onClick={togglePause}
+            onClick={() => togglePause(videoRef, isAnalyzing, setIsPaused)}
             disabled={isAnalyzing}
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-600 bg-zinc-800 px-2 py-3 text-xs font-semibold text-white shadow-lg transition hover:bg-zinc-700 hover:brightness-110 active:scale-95 sm:w-auto sm:px-5 sm:py-4 sm:text-base"
           >
@@ -291,14 +202,23 @@ export default function Display({
             currentTime={currentTime}
             duration={duration}
             progressPercent={progressPercent}
-            handleSeek={handleSeek}
+            handleSeek={(event) =>
+              handleSeek(event, videoRef, isAnalyzing, setCurrentTime)
+            }
           />
         </div>
 
         {/* Rewatch + Retake */}
         <div className="col-start-2 row-start-2 flex min-w-0 flex-col items-center gap-2 justify-self-stretch sm:col-auto sm:row-auto sm:gap-3 sm:justify-self-start">
           <button
-            onClick={handleRewatch}
+            onClick={() =>
+              handleRewatch(
+                isAnalyzing,
+                setIsPaused,
+                rewatchFeedback,
+                setCurrentTime,
+              )
+            }
             disabled={isAnalyzing}
             className="w-full cursor-pointer rounded-xl bg-linear-to-r from-orange-500 to-amber-400 px-2 py-3 text-xs font-semibold text-slate-950 shadow-lg shadow-orange-500/25 transition hover:scale-[1.02] hover:brightness-110 active:scale-95 sm:w-auto sm:px-5 sm:py-4 sm:text-base"
           >
@@ -307,7 +227,7 @@ export default function Display({
           </button>
 
           <button
-            onClick={handleRetake}
+            onClick={() => handleRetake(isAnalyzing, navigate, retake)}
             disabled={isAnalyzing}
             className="mt-0 w-full cursor-pointer rounded-xl border-2 border-orange-500 bg-zinc-900 px-2 py-2 text-xs font-bold tracking-wide text-orange-500 shadow-md shadow-orange-500/10 transition hover:scale-[1.02] hover:bg-orange-500 hover:text-zinc-950 hover:shadow-orange-500/30 active:scale-95 sm:mt-10 sm:w-auto sm:px-5 sm:py-2 sm:text-base"
           >
@@ -397,7 +317,6 @@ export default function Display({
               </div>
             </div>
           )}
-
         </div>
       </div>
 

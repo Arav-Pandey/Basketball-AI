@@ -44,8 +44,8 @@ export default function Demo() {
               </h3>
 
               <p className="mt-4 leading-7 text-zinc-400">
-                Upload or record your jump shot. Basketball AI detects your
-                body, basketball, and shooting motion frame by frame.
+                Upload or record your jump shot and Basketball AI detects your
+                body joints frame by frame.
               </p>
             </div>
 
@@ -62,8 +62,7 @@ export default function Demo() {
 
               <p className="mt-4 leading-7 text-zinc-400">
                 Your mechanics are evaluated across multiple areas including
-                balance, foot placement, knee bend, elbow alignment, and release
-                mechanics.
+                foot placement, knee bend, elbow alignment, and more
               </p>
             </div>
 
@@ -79,9 +78,8 @@ export default function Demo() {
               </h3>
 
               <p className="mt-4 leading-7 text-zinc-400">
-                See which NBA player's shooting mechanics most closely resemble
-                yours and understand where your form differs from elite
-                shooters.
+                See how your shot compares to one of the best basketball shooter
+                of all time, Stephen Curry
               </p>
             </div>
           </div>

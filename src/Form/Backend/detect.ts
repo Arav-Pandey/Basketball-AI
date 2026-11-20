@@ -32,11 +32,13 @@ export default async function detect(props: DetectProps): Promise<void> {
   const isFinalFrame = video.ended;
   const mediaTime = video.currentTime;
   const yoloFrameIndex = Math.floor(mediaTime * YOLO_ANALYSIS_FPS);
+  const isSeekingBackward = mediaTime < props.lastVideoTimeRef.current;
   const isRepeatedFrame =
-    mediaTime <= props.lastVideoTimeRef.current ||
-    (!isFinalFrame &&
-      yoloFrameIndex ===
-        Math.floor(props.lastVideoTimeRef.current * YOLO_ANALYSIS_FPS));
+    !isSeekingBackward &&
+    (mediaTime <= props.lastVideoTimeRef.current ||
+      (!isFinalFrame &&
+        yoloFrameIndex ===
+          Math.floor(props.lastVideoTimeRef.current * YOLO_ANALYSIS_FPS)));
 
   if (isRepeatedFrame && !isFinalFrame) {
     scheduleNext();
