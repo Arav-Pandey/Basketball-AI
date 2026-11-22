@@ -1,11 +1,16 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function Login() {
   const [searchParams] = useSearchParams();
 
+  const handleGuestLogin = () => {
+    sessionStorage.setItem("guestMode", "true");
+    window.location.href = "/home";
+  };
+
   return (
-    <section className="relative flex min-h-[100dvh] w-full items-center justify-center px-5 py-8 text-left text-white sm:px-8">
+    <section className="relative flex min-h-dvh w-full items-center justify-center px-5 py-8 text-left text-white sm:px-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
@@ -93,13 +98,13 @@ export default function Login() {
         </div>
 
         <p className="mt-10 text-center text-sm text-slate-400">
-          New to Basketball AI?{" "}
-          <Link
-            to="/register"
+          Don't want to login in?{" "}
+          <button
+            onClick={handleGuestLogin}
             className="font-semibold text-orange-300 underline decoration-orange-300/40 underline-offset-4 transition hover:text-orange-200"
           >
-            Create an account
-          </Link>
+            Continue as Guest
+          </button>
         </p>
       </div>
     </section>

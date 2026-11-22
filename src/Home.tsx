@@ -3,11 +3,20 @@ import { PlayCircle } from "lucide-react";
 import Steph from "./assets/Steph_Image.png";
 import { useNavigate } from "react-router-dom";
 
-export default function Home() {
+export default function Home({ onCareerClick }: { onCareerClick: () => void }) {
   const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleGetStarted = async () => {
+    const isGuest = sessionStorage.getItem("guestMode") === "true";
+
+    // Guests can proceed without Auth0 verification
+    if (isGuest) {
+      navigate("/form-home");
+      return;
+    }
+
+    // Otherwise, verify the Auth0 session
     try {
       const response = await fetch("/.netlify/functions/auth", {
         credentials: "same-origin",
@@ -15,7 +24,7 @@ export default function Home() {
       });
 
       if (response.status === 401) {
-        window.alert("Log in first");
+        window.alert("Log in or go to login page and continue as guest.");
         return;
       }
 
@@ -87,7 +96,7 @@ export default function Home() {
                     Get Started
                   </button>
                   <button
-                    onClick={() => navigate("/career")}
+                    onClick={onCareerClick}
                     className="inline-flex min-h-12 cursor-pointer items-center justify-center whitespace-nowrap rounded-full border border-orange-400/60 px-3 py-3 text-sm font-semibold text-orange-200 transition hover:bg-orange-500/10 active:scale-95 sm:min-h-16 sm:px-8 sm:py-4 sm:text-2xl"
                   >
                     My Career

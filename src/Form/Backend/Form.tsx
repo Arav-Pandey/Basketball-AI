@@ -29,9 +29,15 @@ interface Props {
   videoURL: string;
   setVideoURL: React.Dispatch<React.SetStateAction<string>>;
   analysisId: string;
+  onCareerClick: () => void;
 }
 
-export default function Form({ videoURL, setVideoURL, analysisId }: Props) {
+export default function Form({
+  videoURL,
+  setVideoURL,
+  analysisId,
+  onCareerClick,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [feetFeedback, setFeetFeedback] = useState<string | null>(null);
@@ -69,6 +75,7 @@ export default function Form({ videoURL, setVideoURL, analysisId }: Props) {
 
   const onAnalysisComplete = useCallback(
     async ({ scores }: CompletedAnalysis) => {
+      if (sessionStorage.getItem("guestMode") === "true") return;
       if (savingAnalysisIdsRef.current.has(analysisId)) return;
       savingAnalysisIdsRef.current.add(analysisId);
 
@@ -275,6 +282,7 @@ export default function Form({ videoURL, setVideoURL, analysisId }: Props) {
       kneeDirectionFeedback={kneeDirectionFeedback}
       isAnalyzing={isAnalyzing}
       analysisProgress={analysisProgress}
+      onCareerClick={onCareerClick}
     />
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveOverlay from "../../LiveOverlay";
-import Recorder from "./Record";
+import Recorder from "./Record/Record";
 
 interface Props {
   setVideoURL: React.Dispatch<React.SetStateAction<string>>;

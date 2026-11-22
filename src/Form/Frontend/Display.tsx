@@ -4,7 +4,6 @@ import { AlertTriangle, ArrowRight, Play, Pause } from "lucide-react";
 import { useEffect, useState } from "react";
 import VideoSlider from "./VideoSlider";
 import FeedbackTable from "./FeedbackTable";
-import { useNavigate } from "react-router-dom";
 import Compare from "../Backend/Compare";
 import OverallScoreHeader from "../Backend/OverallScoreHeader";
 import {
@@ -44,9 +43,8 @@ export default function Display({
   kneeFlareScore,
   isAnalyzing,
   analysisProgress,
+  onCareerClick,
 }: DisplayProps) {
-  const navigate = useNavigate();
-
   const [isPaused, setIsPaused] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
@@ -246,7 +244,7 @@ export default function Display({
           <div className="mb-4 flex justify-end">
             <button
               type="button"
-              onClick={() => navigate("/career")}
+              onClick={onCareerClick}
               className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-bold text-orange-200 transition hover:border-orange-400/50 hover:bg-orange-500/15 hover:text-white active:scale-95"
             >
               View Career

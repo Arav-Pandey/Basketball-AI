@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
   Activity,
   BookOpen,
@@ -10,6 +10,7 @@ import { NavLink } from "react-router-dom";
 
 interface TopbarProps {
   pathname: string;
+  onCareerClick: () => void;
 }
 
 const mainPages = [
@@ -20,9 +21,15 @@ const mainPages = [
   { label: "Instructions", to: "/demo", icon: BookOpen },
 ];
 
-export default function Topbar({ pathname }: TopbarProps) {
+export default function Topbar({ pathname, onCareerClick }: TopbarProps) {
   const [isTopbarVisible, setIsTopbarVisible] = useState(true);
   const previousScrollYRef = useRef(0);
+
+  const handleCareerClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onCareerClick();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,6 +82,9 @@ export default function Topbar({ pathname }: TopbarProps) {
                 key={to}
                 to={to}
                 end={end}
+                onClickCapture={
+                  to === "/career" ? handleCareerClick : undefined
+                }
                 className={({ isActive }) => {
                   const isShotAnalysisActive =
                     to === "/form-home" && pathname === "/form";
@@ -103,6 +113,7 @@ export default function Topbar({ pathname }: TopbarProps) {
             key={to}
             to={to}
             end={end}
+            onClickCapture={to === "/career" ? handleCareerClick : undefined}
             aria-label={label}
             className={({ isActive }) => {
               const isShotAnalysisActive =

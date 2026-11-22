@@ -27,6 +27,7 @@ export interface DisplayProps {
   kneeFlareFeedback: string | null;
   isAnalyzing: boolean;
   analysisProgress: number;
+  onCareerClick: () => void;
 }
 
 export const togglePause = (

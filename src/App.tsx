@@ -6,9 +6,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
-
 import Form from "./Form/Backend/Form.tsx";
 import Home from "./Home.tsx";
 import FormHome from "./Form/Frontend/FormHome.tsx";
@@ -22,7 +27,22 @@ import Career from "./Career/Career.tsx";
 import { createAnalysisId } from "./Career/careerSessions";
 import Topbar from "./Topbar.tsx";
 
-function AuthGate({ children }: { children: ReactNode }) {
+type AuthStatus =
+  | "checking"
+  | "authenticated"
+  | "guest"
+  | "unauthenticated"
+  | "unavailable";
+
+function AuthGate({
+  children,
+  setStatus,
+  status,
+}: {
+  children: ReactNode;
+  setStatus: React.Dispatch<React.SetStateAction<AuthStatus>>;
+  status: AuthStatus;
+}) {
   const location = useLocation();
 
   const isAuthPage =
@@ -32,12 +52,16 @@ function AuthGate({ children }: { children: ReactNode }) {
 
   const isPublicRoute = isAuthPage;
 
-  const [status, setStatus] = useState<
-    "checking" | "authenticated" | "unauthenticated" | "unavailable"
-  >("checking");
-
   useEffect(() => {
     let active = true;
+
+    if (sessionStorage.getItem("guestMode") === "true") {
+      setStatus("guest");
+
+      return () => {
+        active = false;
+      };
+    }
 
     fetch("/.netlify/functions/auth", {
       credentials: "same-origin",
@@ -69,10 +93,6 @@ function AuthGate({ children }: { children: ReactNode }) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
-  if (status === "unauthenticated" && !isPublicRoute) {
-    return <Navigate to="/" replace state={{ from: location }} />;
-  }
-
   if (status === "authenticated" && isAuthPage) {
     return <Navigate to="/home" replace />;
   }
@@ -82,6 +102,7 @@ function AuthGate({ children }: { children: ReactNode }) {
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [videoURL, setVideoURL] = useState<string>("");
   const [analysisId, setAnalysisId] = useState(createAnalysisId);
@@ -92,6 +113,17 @@ export default function App() {
     location.pathname === "/" ||
     location.pathname === "/login" ||
     location.pathname === "/register";
+
+  const [status, setStatus] = useState<AuthStatus>("checking");
+
+  const handleCareerNavigation = useCallback(() => {
+    if (status !== "authenticated") {
+      window.alert("Career is only available to logged-in users, not guests.");
+      return;
+    }
+
+    navigate("/career");
+  }, [navigate, status]);
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -116,7 +148,12 @@ export default function App() {
   return (
     <BackgroundLayout>
       <div>
-        {!isAuthPage && <Topbar pathname={location.pathname} />}
+        {!isAuthPage && (
+          <Topbar
+            pathname={location.pathname}
+            onCareerClick={handleCareerNavigation}
+          />
+        )}
 
         <div className="min-h-screen w-full overflow-x-hidden text-white">
           <main
@@ -124,10 +161,13 @@ export default function App() {
               isAuthPage ? "min-h-dvh" : "min-h-screen"
             } ${isAuthPage ? "" : "app-main"}`}
           >
-            <AuthGate>
+            <AuthGate status={status} setStatus={setStatus}>
               <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/home" element={<Home />} />
+                <Route
+                  path="/home"
+                  element={<Home onCareerClick={handleCareerNavigation} />}
+                />
 
                 <Route
                   path="/form-home"
@@ -146,11 +186,15 @@ export default function App() {
                       videoURL={videoURL}
                       setVideoURL={updateVideoURL}
                       analysisId={analysisId}
+                      onCareerClick={handleCareerNavigation}
                     />
                   }
                 />
 
-                <Route path="/career" element={<Career />} />
+                <Route
+                  path="/career"
+                  element={status === "authenticated" ? <Career /> : null}
+                />
 
                 <Route path="/form-live" element={<FormLive />} />
                 <Route path="/login" element={<Navigate to="/" replace />} />
