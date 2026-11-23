@@ -1,573 +1,300 @@
-# Basketball AI
+# 🏀 Basketball AI
 
-Basketball AI is a browser-based basketball shooting form analyzer built with React, TypeScript, and Vite. It uses pose-estimation computer vision to examine a recorded or uploaded jump-shot video, highlight the player's body landmarks, calculate shooting mechanics, and show targeted coaching feedback.
+<div align="center">
 
-The app compares the user's form with a reference shot by Stephen Curry and presents individual scores for foot placement, elbow alignment, knee bend, knee spacing/alignment, and overall shot similarity. Signed-in users can save and review completed analyses in a Career History page, while guest users can use the analysis tools without an account.
+**AI-powered basketball shooting form analysis in your browser**
 
-> This project was created for the Congressional App Challenge. It is an educational training aid, not a medical or professional coaching system.
+Record or upload a jump shot. Detect your form. Improve every shot.
 
-## Table of contents
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
+[![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://netlify.com/)
 
-- [Features](#features)
-- [How it works](#how-it-works)
-- [Application pages](#application-pages)
-- [Form metrics](#form-metrics)
-- [Technology stack](#technology-stack)
-- [Project structure](#project-structure)
-- [Requirements](#requirements)
-- [Local setup](#local-setup)
-- [Environment configuration](#environment-configuration)
-- [Running the project](#running-the-project)
-- [Using the app](#using-the-app)
-- [Auth0 and MongoDB setup](#auth0-and-mongodb-setup)
-- [Deploying to Netlify](#deploying-to-netlify)
-- [Build and quality checks](#build-and-quality-checks)
-- [Privacy and data storage](#privacy-and-data-storage)
-- [Troubleshooting](#troubleshooting)
-- [Known considerations](#known-considerations)
-- [Sources and citations](#sources-and-citations)
+</div>
 
-## Features
+<br>
 
-### Shot capture and upload
+<div align="center">
 
-- Record a shot directly from a connected camera.
-- Switch between front and rear-facing cameras when the browser and device support it.
-- Upload a video through a file picker or drag-and-drop area.
-- Supported file formats include MP4, MOV, WebM, M4V, AVI, and MKV, subject to browser codec support.
-- Preview the chosen video and remove or replace it before analysis.
-- Use the included example shot without recording or uploading a file.
+| 🎥 Capture | 🧠 Analyze | 📊 Improve | 🏆 Track |
+|:---:|:---:|:---:|:---:|
+| Record or upload | Detect body pose | Receive form scores | Review career progress |
 
-### Pose-based shot analysis
+</div>
 
-- Preprocesses the video frame by frame at 10 FPS.
-- Runs the YOLO26s-Pose ONNX model in the browser with ONNX Runtime Web and WebAssembly.
-- Draws a pose skeleton and selected body landmarks over the video.
-- Evaluates the shooting motion throughout the clip instead of relying on only one live camera frame.
-- Uses median and averaged measurements to reduce the impact of isolated pose-estimation errors.
-- Produces per-metric scores and human-readable feedback.
+---
 
-### Live form view
+## Overview
 
-- The `/form-live` page opens a live camera feed and runs MediaPipe Pose Landmarker in the browser.
-- It overlays pose connections and selected landmarks on the camera canvas.
-- It can report ankle, knee, elbow flare, and knee-bend feedback from live measurements.
-- Camera access is only requested after the user selects the shooting hand.
+Basketball AI uses computer vision to evaluate basketball shooting form directly in the browser. The app detects body landmarks throughout a recorded or uploaded video, then calculates scores for:
 
-### Account and career tracking
+- Feet distance
+- Elbow alignment
+- Knee bend
+- Knee distance and flare
+- Knee direction
+- Similarity to a Stephen Curry reference shot
 
-- Auth0 Universal Login is used for account sign-in and registration.
-- App session state is stored in a signed, HttpOnly, same-site cookie.
-- Completed analyses can be persisted to MongoDB for authenticated users.
-- The Career page shows the latest form score, the previous score, the score change, and the total number of saved sessions.
-- Individual career sessions can be deleted, or all history can be cleared.
-- Career history is also cached in browser `localStorage` for a faster local view and offline fallback.
-- Guest mode disables career saving and keeps the core analysis experience accessible.
+Users can continue as a guest or sign in to save analysis history. The Career page tracks progress over time and uses MongoDB for signed-in profiles.
 
-### Educational information
+> [!IMPORTANT]
+> Basketball AI is an educational training tool, not a medical or professional coaching system.
 
-- The Instructions/Demo page explains the analysis workflow.
-- Dedicated citation pages explain each measured form component.
-- External coaching articles and videos are linked for additional learning.
+## ✨ What You Can Do
 
-## How it works
+- Record a shot with your camera
+- Upload or drag-and-drop an MP4, MOV, WebM, M4V, AVI, or MKV video
+- Preview and replace a selected video
+- Analyze the shot with an AI-generated pose overlay
+- View overall and individual form scores
+- Pause and inspect the video at any point
+- Learn about each form metric through linked educational pages
+- Analyze a live camera feed
+- Save, review, delete, or clear career analysis history
 
-### 1. Capture or select a shot
+## 🔄 How It Works
 
-The user starts on the sign-in or guest landing page, then opens the Shot Workspace:
+1. **Select or record a shot** in the Shot Workspace.
+2. **Choose shooting hand**: left or right.
+3. **Detect the pose**:
+   - Recorded videos use YOLO26s-Pose with ONNX Runtime Web.
+   - Live analysis uses MediaPipe Pose Landmarker.
+4. **Measure the form** using distances and angles from the detected joints.
+5. **Calculate scores** for the different shooting mechanics.
+6. **Compare** elbow flare and knee angle with a Stephen Curry reference shot.
+7. **Display feedback** and save completed analyses for signed-in users.
 
-1. Record a shot with the browser camera.
-2. Upload or drag-and-drop a video.
-3. Preview the recording.
-4. Choose **Use This Video**.
-5. Select whether the shooter is right- or left-handed.
+The analysis uses median and averaged frame measurements to reduce the impact of an incorrectly detected landmark.
 
-The app needs a full-body, front-facing view where the shoulders, elbows, wrists, hips, knees, and ankles are visible. Good lighting and minimal camera movement improve pose-estimation quality.
+## 🗺️ Main Pages
 
-### 2. Detect the shooting pose
+| Page | Route | Description |
+| --- | --- | --- |
+| Sign in | `/` | Auth0 sign-in or guest access |
+| Home | `/home` | App introduction and navigation |
+| Shot Workspace | `/form-home` | Record or upload a shot |
+| Shot Analysis | `/form` | Pose overlay and detailed feedback |
+| Live Analysis | `/form-live` | Real-time camera-based form analysis |
+| Career | `/career` | Saved progress and session history |
+| Instructions | `/demo` | App overview and metric sources |
+| Metric Guides | `/sections/:id` | Details about one form metric |
 
-For recorded analysis, the app:
+## 📊 Form Metrics
 
-1. Loads the YOLO26s-Pose ONNX model from Hugging Face.
-2. Loads ONNX Runtime Web from jsDelivr.
-3. Seeks through the selected video.
-4. Preprocesses each sampled frame as a padded 640 x 480 RGB tensor.
-5. Runs pose inference using the browser's WebAssembly execution provider.
-6. Extracts the 17 COCO pose keypoints.
-7. Normalizes keypoint coordinates and caches the results by video frame.
-
-The YOLO model returns person detections and keypoints for the shoulder, elbow, wrist, hip, knee, and ankle regions. The app chooses the best pose in each frame and discards weak or invalid detections.
-
-The live `/form-live` flow is separate: it uses MediaPipe Pose Landmarker directly through the camera stream instead of preprocessing a saved video.
-
-### 3. Calculate shooting mechanics
-
-The analysis code calculates 2D geometric measurements from the pose keypoints. Aspect ratio is used to prevent portrait or landscape dimensions from distorting distance calculations.
-
-Examples include:
-
-- Distances between the feet, knees, hips, and shoulders.
-- Elbow and shoulder alignment.
-- Knee angles using the hip-knee-ankle triangle.
-- High-point frame selection from wrist positions.
-- Lowest-knee-angle sampling for bend measurements.
-- Knee direction and flare measurements.
-
-The app combines multiple frames instead of trusting a single frame. Median and averaged values make the feedback more stable when one keypoint is misdetected.
-
-### 4. Score and explain the form
-
-Each available measurement is converted to a 0-100 score. The UI labels scores as:
-
-- 85-100: Excellent
-- 65-84: Above Average
-- 41-64: Mediocre
-- 0-40: Poor
-
-The feedback table also links to an educational page for that metric. Measurements that are not reliable enough are not shown instead of presenting misleading feedback.
-
-### 5. Compare with Stephen Curry
-
-The app has a reference dataset derived from the included Stephen Curry shot video. It compares normalized elbow flare and knee angle measurements from the user's selected high-point frames.
-
-The Curry similarity calculation is based on:
-
-- Elbow flare difference, weighted at 65%.
-- Knee-angle difference, weighted at 35%.
-
-The resulting similarity is displayed as a percentage. It is a form similarity estimate, not a guarantee that the player shoots like or will perform like a professional athlete.
-
-### 6. Save career history
-
-After a completed recorded analysis:
-
-1. The frontend sends the analysis ID and available scores to a Netlify Function.
-2. The server verifies the signed-in session cookie.
-3. The function creates a career session and calculates the overall form score.
-4. MongoDB receives the new session under the user's Auth0-derived profile.
-5. The browser caches the returned session for the Career page.
-
-Guest analyses are not saved.
-
-## Application pages
-
-| Route | Purpose |
+| Metric | What is checked |
 | --- | --- |
-| `/` | Sign-in and guest entry page |
-| `/login` | Redirects to the main sign-in page |
-| `/register` | Opens Auth0 Universal Login in sign-up mode |
-| `/home` | Project introduction and navigation |
-| `/form-home` | Camera, upload, drag-and-drop, and sample-video workspace |
-| `/form` | Recorded-video pose analysis and feedback |
-| `/form-live` | MediaPipe camera-based live analysis |
-| `/career` | Signed-in career history, trends, and session management |
-| `/demo` | Instructions and source overview |
-| `/sections/:id` | Educational page for an individual form metric |
+| Feet Distance | Foot spacing and stance balance |
+| Elbow Alignment | Whether the shooting elbow stays near the body |
+| Knee Bend | Hip-knee-ankle angle |
+| Knee Distance | Knee spacing and alignment |
+| Knee Flare | Whether the knees move away from a stable position |
+| Knee Direction | Whether the knees face the target |
+| Curry Comparison | Elbow flare and knee angle similarity |
 
-Unknown routes redirect to `/`.
+<br>
 
-## Form metrics
+<div align="center">
 
-| Metric | What is measured |
-| --- | --- |
-| Feet distance | Spacing between the feet compared with shoulder and stance measurements |
-| Elbow alignment / flare | Whether the shooting elbow stays under the ball and near the body |
-| Knee bend | The hip-knee-ankle angle while the player prepares and releases the shot |
-| Knee distance | The spacing and alignment of the knees throughout the motion |
-| Knee flare | Whether the knees remain aligned instead of flaring excessively |
-| Knee direction | Whether the knees point toward the target rather than inward or sideways |
-| Curry similarity | Normalized similarity of elbow flare and knee angle to the Curry baseline |
+| Excellent | Above Average | Mediocre | Poor |
+|:---:|:---:|:---:|:---:|
+| 🟢 **85-100** | 🟡 **65-84** | 🟠 **41-64** | 🔴 **0-40** |
 
-Metric calculations and feedback are implemented primarily in:
+</div>
 
-- `src/Form/Backend/calculations.ts`
-- `src/Form/Backend/feedbackFunctions.ts`
-- `src/Form/Backend/updatePoseMeasurements.ts`
-- `src/Form/Backend/scoringFunctions.ts`
-- `src/Form/Backend/finalizePoseAnalysis.ts`
+<br>
 
-## Technology stack
+## 🛠️ Technology
 
-### Frontend
-
-- React 19
-- TypeScript
+- React 19 and TypeScript
 - Vite
 - React Router
-- Tailwind CSS 4
-- Lucide React and React Icons
-- TanStack React Query
-
-### Pose analysis
-
-- YOLO26s-Pose ONNX model
-- ONNX Runtime Web
+- Tailwind CSS
+- YOLO26s-Pose and ONNX Runtime Web
 - MediaPipe Pose Landmarker
-- WebAssembly
-- Canvas 2D API
-
-### Backend and services
-
 - Netlify Functions
-- Auth0 OpenID Connect and PKCE
+- Auth0
 - MongoDB
-- bcrypt utilities
-- JOSE JWT and signed session cookies
+- Browser Camera and MediaRecorder APIs
 
-### Media and utilities
-
-- Browser MediaRecorder API
-- Browser camera and video APIs
-- FFmpeg and Fluent FFmpeg dependencies
-- Axios
-
-## Project structure
+## 📁 Project Structure
 
 ```text
 src/
-  App.tsx                    App routing and authentication gate
-  Home.tsx                   Signed-in/guest home page
-  Authentication/            Auth0 login/register UI
-  Career/                    Career history, caching, charts, and summaries
-  Citations/                 Educational metrics and source pages
+  App.tsx                 Routing and authentication
+  Home.tsx                Main landing page
+  Authentication/         Auth0 login and registration UI
+  Career/                 Career history and progress charts
+  Citations/              Educational metric guides
   Form/
-    Backend/                 Measurements, scoring, YOLO integration, feedback
-    Frontend/                Shot workspace, video player, overlays, controls
-  FormLive/                  MediaPipe live-camera analysis
-  utils/                     Shared pose and browser storage hooks
-  yolo26Pose.ts              YOLO model loading and inference
-  assets/                    Images and sample video
-public/                      Public images and static assets
-netlify/functions/           Server-side auth, career, and pose proxy handlers
-  utils/auth0.ts             Auth0 server helpers
-  utils/mongodb.ts           MongoDB connection helper
-  utils/session.ts           Signed app-session verification
+    Backend/              Calculations, pose processing, and scoring
+    Frontend/             Upload, recording, video, and feedback UI
+  FormLive/               Real-time MediaPipe analysis
+  utils/                  Shared hooks and local storage
+  yolo26Pose.ts           YOLO model loading and inference
+
+netlify/functions/        Auth, career storage, and pose proxy functions
+public/                   Public images and static assets
 ```
 
-## Requirements
+## 🚀 Getting Started
 
-- Node.js 20 or newer is recommended.
-- npm, which is included with Node.js.
-- A modern browser:
-  - Camera upload/recording: Chrome, Edge, or another browser with MediaRecorder and camera support.
-  - Secure `localhost` or HTTPS for browser camera access.
-- Netlify CLI for the full application, especially Auth0 and MongoDB routes.
-- Optional external services:
-  - An Auth0 tenant and application.
-  - A MongoDB Atlas or other MongoDB deployment.
-  - A YOLO26m-Pose-compatible inference endpoint if the optional proxy is used.
+### ✅ Requirements
 
-## Local setup
+- Node.js 20 or newer
+- npm
+- Modern browser with camera support
+- Netlify CLI for authentication and career features
 
-### 1. Clone and enter the repository
+### 📦 Install
 
 ```powershell
 git clone https://github.com/Arav-Pandey/HoopCorrector.git
 cd HoopCorrector
-```
-
-If the repository is already present, open a PowerShell terminal in the project root.
-
-### 2. Install dependencies
-
-```powershell
 npm install
 ```
 
-The `node_modules` directory is ignored and should not be committed.
+## 🔐 Environment Setup
 
-### 3. Create local environment configuration
-
-Create a root `.env` file. The repository already ignores `.env`, but never commit secrets to source control.
+Create a root `.env` file for Netlify development:
 
 ```dotenv
-AUTH0_DOMAIN=your-tenant.us.auth0.com
-AUTH0_CLIENT_ID=your-auth0-client-id
-AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_DOMAIN=your-tenant.auth0.com
+AUTH0_CLIENT_ID=your-client-id
+AUTH0_CLIENT_SECRET=your-client-secret
 AUTH0_CALLBACK_URL=http://localhost:8888/.netlify/functions/auth0-callback
-AUTH_SECRET=replace-with-a-long-random-secret
-MONGODB_URI=mongodb+srv://username:password@cluster.example.mongodb.net/
+AUTH_SECRET=generate-a-long-random-secret
+MONGODB_URI=your-mongodb-connection-string
 MONGODB_DB=BasketballAI
-
-# Optional proxy for a hosted YOLO26m-Pose endpoint
-YOLO26M_POSE_ENDPOINT=https://your-pose-service.example/analyze
-YOLO26M_POSE_API_KEY=your-server-only-api-key
 ```
 
-Generate a strong session-signing secret:
+Generate a session secret with:
 
 ```powershell
 node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ```
 
-### 4. Install the Netlify CLI
+Optional hosted-YOLO variables:
 
-```powershell
-npm install --save-dev netlify-cli
+```dotenv
+YOLO26M_POSE_ENDPOINT=https://your-pose-service.example/analyze
+YOLO26M_POSE_API_KEY=your-server-only-api-key
 ```
 
-Or run Netlify CLI through `npx` without adding it to the project.
+> [!CAUTION]
+> Never commit `.env` or add these secrets to `VITE_` variables. The default recorded-video analysis loads YOLO directly in the browser.
 
-## Environment configuration
+## ▶️ Run Locally
 
-| Variable | Required | Where used |
-| --- | --- | --- |
-| `AUTH0_DOMAIN` | Authenticated accounts | Auth0 login and callback |
-| `AUTH0_CLIENT_ID` | Authenticated accounts | Auth0 authorization and PKCE |
-| `AUTH0_CLIENT_SECRET` | Authenticated accounts | Server-side Auth0 code exchange |
-| `AUTH0_CALLBACK_URL` | Authenticated accounts | Exact callback URL registered in Auth0 |
-| `AUTH_SECRET` | Authenticated accounts and career history | Signs app login-state and session cookies |
-| `MONGODB_URI` | Career history | MongoDB server connection |
-| `MONGODB_DB` | Optional; defaults to `BasketballAI` | MongoDB database name |
-| `YOLO26M_POSE_ENDPOINT` | Optional proxy | Hosted YOLO pose inference endpoint |
-| `YOLO26M_POSE_API_KEY` | Optional proxy | Bearer key sent only from the Netlify Function |
-
-Do not add `VITE_` to secret environment variable names. Variables beginning with `VITE_` can be exposed to browser code.
-
-The main recorded-video implementation downloads its YOLO model directly in the browser. The `yolo26m-pose` Netlify function is a proxy for an optional hosted inference service and is not required by the browser's default YOLO loader.
-
-## Running the project
-
-### Full application with Netlify Functions
-
-Use this mode for login, career history, and all routes:
+For the complete app, including authentication and career history:
 
 ```powershell
 npx netlify dev
 ```
 
-Open `http://localhost:8888`.
+Open <http://localhost:8888>.
 
-Netlify Dev serves both:
-
-- The Vite frontend
-- Files in `netlify/functions`
-- The SPA fallback configured in `netlify.toml`
-
-### Frontend-only development
+For frontend-only development:
 
 ```powershell
 npm run dev
 ```
 
-Vite prints a local address, usually `http://localhost:5173`.
+Vite normally serves this on <http://localhost:5173>. Auth and career routes require Netlify Dev.
 
-Use this mode for UI and local pose-analysis work only. Auth, career, and server-backed routes will not work correctly without Netlify Functions.
+## 🏀 Using the App
 
-### Preview a production build locally
-
-```powershell
-npm run build
-npm run preview
-```
-
-The preview command serves the built `dist` directory, not the Netlify Functions.
-
-## Using the app
-
-1. Open the app and sign in, register, or continue as a guest.
+1. Sign in or continue as a guest.
 2. Open **Get Started**.
-3. Record or upload a shot.
-4. Keep the full body in frame and the camera stable.
-5. Use a clear, front-facing view.
-6. Select **Use This Video**.
-7. Choose left- or right-handed shooting.
-8. Wait for pose preprocessing and analysis to finish.
-9. Review the overall and per-metric scores.
-10. Pause or seek through the video to inspect the pose overlay.
-11. Open **Learn More** for educational metric explanations.
-12. Retake the shot or return to the Career page if signed in.
+3. Record or upload a jump-shot video.
+4. Preview the video and select **Use This Video**.
+5. Choose the shooting hand.
+6. Wait for pose analysis to finish.
+7. Review the scores and feedback.
+8. Use the linked metric guides to learn how to improve.
 
-For the best pose quality:
+### 🎯 For the best results
 
-- Use a side or full-body view with every relevant landmark visible.
-- Use bright, even lighting.
-- Avoid heavy motion blur or fast digital zoom.
-- Keep the player in the center of the frame.
-- Avoid loose clothing that hides the knees or elbows.
-- Record a complete setup and shooting motion, not only the release frame.
+- Use a full-body, front-facing view
+- Keep the shoulders, elbows, wrists, hips, knees, and ankles visible
+- Use bright, even lighting
+- Keep the camera stable
+- Use an uninterrupted setup-to-release recording
 
-## Auth0 and MongoDB setup
+## 🔑 Auth0 Setup
 
-### Auth0
+Create a regular web application in Auth0, then register:
 
-1. Create an Auth0 tenant.
-2. Create a **Regular Web Application**.
-3. Copy the domain, client ID, and client secret.
-4. Register callback URLs:
-   - Local: `http://localhost:8888/.netlify/functions/auth0-callback`
-   - Production: `https://YOUR-SITE.netlify.app/.netlify/functions/auth0-callback`
-5. Register logout and web origins:
-   - Local: `http://localhost:8888`
-   - Production: `https://YOUR-SITE.netlify.app`
-6. Enable at least one database or social connection.
-7. Set the environment variables listed above.
+- Local callback: `http://localhost:8888/.netlify/functions/auth0-callback`
+- Production callback: `https://YOUR-SITE.netlify.app/.netlify/functions/auth0-callback`
+- Local web origin and logout URL: `http://localhost:8888`
+- Production web origin and logout URL: `https://YOUR-SITE.netlify.app`
 
-The `/register` page starts the Auth0 login flow with sign-up mode enabled. The server exchanges the authorization code, validates the ID token, creates a signed app cookie, and upserts the user in MongoDB on successful login.
+Set the Auth0 and session variables locally and in Netlify's production environment settings.
 
-### MongoDB
+## 💾 MongoDB and Career History
 
-MongoDB is accessed only by Netlify Functions. The browser never receives the MongoDB connection string.
+Career history is available only to signed-in users. Netlify Functions verify the app session cookie, then store career sessions in MongoDB.
 
-The user document stores a `careerSessions` array in the configured database. Netlify Dev may access your local network and does not guarantee that the cluster or Atlas network rules permit traffic from deployed Netlify infrastructure.
+The browser also caches profile history in `localStorage`. Guest analysis is never saved to a career profile.
 
 For MongoDB Atlas:
 
-- Allow outbound traffic from the deployed environment as required by your Atlas network-access configuration.
-- Use a least-privilege database user.
-- Store `MONGODB_URI` as a server-side Netlify environment variable.
-- Use the 7-second server-selection timeout for the serverless environment unless your deployment requirements justify a change.
+- Configure database and network access
+- Use a least-privilege database user
+- Store `MONGODB_URI` only on the server
+- Redeploy after environment changes
 
-## Deploying to Netlify
+## ☁️ Deploy to Netlify
 
-The repository includes `netlify.toml` with:
+The repository is configured with:
 
 - Build command: `npm run build`
 - Publish directory: `dist`
 - Functions directory: `netlify/functions`
-- SPA redirect: sends unknown frontend routes to `index.html`
+- SPA fallback for React Router
 
-Deploy by connecting the GitHub repository to Netlify or by using:
+Deploy:
 
 ```powershell
 npx netlify deploy --build
-```
-
-For a production deployment:
-
-```powershell
 npx netlify deploy --build --prod
 ```
 
-Before deploying, configure all required environment variables in the Netlify site settings:
+Add all required environment variables in Netlify, then update the Auth0 URLs to match the production domain.
 
-- `AUTH0_DOMAIN`
-- `AUTH0_CLIENT_ID`
-- `AUTH0_CLIENT_SECRET`
-- `AUTH0_CALLBACK_URL`
-- `AUTH_SECRET`
-- `MONGODB_URI`
-- `MONGODB_DB`, if not using `BasketballAI`
-- Optional YOLO proxy variables
-
-Redeploy after changing environment variables. Also update Auth0 callback, logout, and web-origin URLs to match the deployed Netlify domain.
-
-## Build and quality checks
-
-Build the production bundle:
-
-```powershell
-npm run build
-```
-
-Run the configured ESLint check:
-
-```powershell
-npm run lint
-```
-
-For a normal validation pass:
+## 🧪 Build and Quality Checks
 
 ```powershell
 npm run lint
 npm run build
+npm run preview
 ```
 
-There is no automated test runner configured in `package.json` at this time. Browser tests should cover at minimum:
+There is no automated test runner configured in `package.json`.
 
-- Sign-in, guest mode, and protected-route behavior.
-- Video upload, drag-and-drop, and sample-video loading.
-- Camera start, stop, and camera switching.
-- Dominant-hand selection.
-- Recorded-video pose loading and finalization.
-- Live-camera permission success and failure.
-- Career save, load, delete, and clear actions.
-- Mobile and desktop layouts.
+## 🩺 Troubleshooting
 
-## Privacy and data storage
+| Problem | Check |
+| --- | --- |
+| Camera unavailable | Allow browser camera access and use localhost or HTTPS |
+| Keypoints not visible | Improve lighting and show the full body directly in frame |
+| Auth fails locally | Use `npx netlify dev` and match Auth0 callback URLs exactly |
+| Career history fails | Verify `AUTH_SECRET`, MongoDB credentials, and network access |
+| Pose analysis fails | Check network access to Hugging Face/jsDelivr and refresh the page |
+| Video codec unsupported | Try MP4/H.264 or WebM |
 
-- Uploaded and recorded videos are loaded through browser object URLs for local analysis.
-- The browser pose model is loaded from Hugging Face and jsDelivr.
-- The YOLO pose model does not receive the user's video through MongoDB or the Auth0 flow in the default browser implementation.
-- Auth0 handles account authentication.
-- MongoDB stores the user's career sessions and profile cache data.
-- Career sessions are also copied to browser `localStorage` by a profile-specific key.
-- Guest mode does not save completed recorded analyses to a career profile.
-- `AUTH0_CLIENT_SECRET`, `AUTH_SECRET`, MongoDB credentials, and any YOLO API key must remain server-side.
+## 🔒 Privacy
 
-Before public deployment, audit the repository history and hosting environment for accidentally committed credentials. If any `.env` secret was committed or shared, rotate that secret in the original service and update Netlify.
+- Videos are processed locally for the default recorded-video analysis.
+- Auth0 manages account authentication.
+- MongoDB stores signed-in career history.
+- Auth secrets and database credentials stay on the server.
+- Guest mode does not save career data.
+- Never commit `.env`, API keys, passwords, or database credentials.
 
-## Troubleshooting
+## ⚠️ Limitations
 
-### Camera does not open
+Pose measurements can be affected by camera angle, clothing, lighting, motion blur, and video quality. Professional comparisons are educational estimates, not validated medical or coaching diagnoses.
 
-- Allow camera and, when applicable, microphone permissions.
-- Use `localhost` or HTTPS.
-- Confirm another app is not exclusively using the camera.
-- Try a desktop browser or switch camera devices.
-- On mobile, avoid unsupported embedded browser contexts.
-
-### The page reports that keypoints are not visible
-
-- Move farther enough from the camera to show the full body.
-- Face the camera more directly.
-- Improve lighting.
-- Remove obstructions around the shoulders, hips, knees, and ankles.
-- Use an uninterrupted setup-to-release video.
-
-### Auth fails locally
-
-- Confirm `AUTH0_CALLBACK_URL` exactly matches the callback URL in Auth0.
-- Start the app with `npx netlify dev`, not only `npm run dev`.
-- Confirm Auth0's callback, web origin, and logout URL allow `http://localhost:8888`.
-- Restart Netlify Dev after changing `.env`.
-
-### Career history cannot be saved
-
-- Confirm the user is signed in and not in guest mode.
-- Check `AUTH_SECRET`, `MONGODB_URI`, and `MONGODB_DB`.
-- Confirm MongoDB network access and credentials.
-- Inspect Netlify Function logs.
-- If MongoDB unreachable errors occur only in production, verify the production environment variables and deployed Atlas network rules.
-
-### YOLO pose analysis fails
-
-- Check browser network access to Hugging Face and jsDelivr.
-- Wait for the initial model download and browser WebAssembly initialization.
-- Refresh the page if the model session failed after a network interruption.
-- Try a lower-resolution, shorter, and MP4/H.264-encoded video.
-- Confirm the browser supports WebAssembly and canvas video frame access.
-
-### MongoDB returns `MongoServerSelectionError`
-
-- Verify the production `MONGODB_URI`.
-- Verify the Atlas network access configuration.
-- Confirm the database user credentials.
-- Check DNS and outbound-network availability.
-- Review `auth0-callback` or `career-sessions` function logs for the failing phase.
-
-## Known considerations
-
-- 2D pose landmarks can be affected by camera angle, occlusion, and video quality.
-- Similarity to a professional athlete is a reference estimate, not a validated clinical or coaching diagnosis.
-- Browser codecs and `MediaRecorder` support vary by operating system and browser.
-- The live mode uses MediaPipe while recorded analysis uses YOLO26s-Pose.
-- The YOLO model initially downloads assets, so the first analysis may be slower.
-- The app may need more memory or processing time for long, high-resolution videos.
-- An expensive or unavailable pose model can make analysis fail even if the rest of the UI works.
-- Career cache synchronization is eventually refreshed from MongoDB after the Career page loads.
-
-## Sources and citations
-
-The app includes a `/demo` page and dedicated source pages under `/sections/:id`. Those sections link to coaching references and videos for:
-
-- Feet direction
-- Elbow flare
-- Knee bend
-- Feet distance
-- Knee distance
-- Knee flare
-- Knee direction
-- Comparison to Stephen Curry
-
-All third-party media and source ownership remains with its respective creators and publishers.
+All third-party coaching media remains the property of its respective creators and publishers.
