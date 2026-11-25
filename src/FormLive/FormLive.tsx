@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
-import {
-  calculateAngle,
-  calculateDistance,
-} from "../Form/Backend/calculations";
+import detect from "./detect";
 import DisplayLive from "./DisplayLive";
 
 const poseConnections: [number, number][] = [
@@ -25,6 +22,8 @@ export default function FormLive() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const VIS_THRESHOLD = 0.4;
+
   const [ankleFeedback, setAnkleFeedback] = useState("");
   const [kneeFeedback, setKneeFeedback] = useState("");
   const [flareFeedback, setFlareFeedback] = useState("");
@@ -40,7 +39,7 @@ export default function FormLive() {
       return;
     }
     let poseLandmarker: PoseLandmarker;
-    let animationFrameId: number;
+    let animationFrameId = 0;
 
     async function init() {
       const vision = await FilesetResolver.forVisionTasks(
@@ -77,239 +76,24 @@ export default function FormLive() {
           canvas.height = video.videoHeight;
 
           video.play();
-          detect();
+          detect({
+            videoRef,
+            canvasRef,
+            poseLandmarker,
+            dominantHand,
+            setAnkleFeedback,
+            setKneeFeedback,
+            setFlareFeedback,
+            setBendFeedback,
+            setErrorFeedback,
+            poseConnections,
+            VIS_THRESHOLD,
+            animationFrameId,
+          });
         };
       } catch {
         setErrorFeedback("⚠️ Unable to access camera.");
       }
-    }
-
-    function detect() {
-      if (!videoRef.current || !canvasRef.current || !poseLandmarker) return;
-
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const aspectRatio = video.videoWidth / video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
-        setErrorFeedback("⚠️ Unable to read video dimensions for pose analysis.");
-        return;
-      }
-
-      const results = poseLandmarker.detectForVideo(video, performance.now());
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (results.landmarks.length > 0) {
-        const landmarks = results.landmarks[0];
-        const visibleLandmarks = new Set([
-          11,
-          12,
-          dominantHand === "right" ? 14 : 13,
-          dominantHand === "right" ? 16 : 15,
-          dominantHand === "right" ? 24 : 23,
-          25,
-          26,
-          27,
-          28,
-        ]);
-
-        poseConnections.forEach(([firstIndex, secondIndex]) => {
-          const first = landmarks[firstIndex];
-          const second = landmarks[secondIndex];
-          if (
-            !first ||
-            !second ||
-            first.visibility <= 0.1 ||
-            second.visibility <= 0.1
-          ) {
-            return;
-          }
-
-          ctx.beginPath();
-          ctx.moveTo(first.x * canvas.width, first.y * canvas.height);
-          ctx.lineTo(second.x * canvas.width, second.y * canvas.height);
-          ctx.strokeStyle = "lime";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        });
-
-        landmarks.forEach((landmark, index) => {
-          if (!visibleLandmarks.has(index) || landmark.visibility <= 0.1) {
-            return;
-          }
-
-          ctx.beginPath();
-          ctx.arc(
-            landmark.x * canvas.width,
-            landmark.y * canvas.height,
-            5,
-            0,
-            2 * Math.PI,
-          );
-          ctx.fillStyle = "lime";
-          ctx.fill();
-        });
-
-        const shoulder =
-          dominantHand === "right" ? landmarks[12] : landmarks[11];
-        const rightShoulder = landmarks[12];
-        const leftShoulder = landmarks[11];
-        const elbow = dominantHand === "right" ? landmarks[14] : landmarks[13];
-        const wrist = dominantHand === "right" ? landmarks[16] : landmarks[15];
-        const rightAnkle = landmarks[28];
-        const leftAnkle = landmarks[27];
-        const rightKnee = landmarks[26];
-        const leftKnee = landmarks[25];
-        const hip = dominantHand === "right" ? landmarks[24] : landmarks[23];
-        const knee = dominantHand === "right" ? landmarks[26] : landmarks[25];
-        const ankle = dominantHand === "right" ? landmarks[28] : landmarks[27];
-
-        const shoulderVisible = shoulder.visibility > 0.1;
-        const elbowVisible = elbow.visibility > 0.1;
-        const wristVisible = wrist.visibility > 0.1;
-        const shouldersVisible =
-          rightShoulder.visibility > 0.1 && leftShoulder.visibility > 0.1;
-        const anklesVisible =
-          leftAnkle.visibility > 0.1 && rightAnkle.visibility > 0.1;
-        const kneesVisible =
-          leftKnee.visibility > 0.1 && rightKnee.visibility > 0.1;
-        const hipsVisible =
-          landmarks[23].visibility > 0.1 &&
-          landmarks[24].visibility > 0.1;
-        const hipVisible = hip.visibility > 0.1;
-
-        const keypointsVisibleEnough =
-          rightShoulder.visibility >= 0.4 &&
-          leftShoulder.visibility >= 0.4 &&
-          elbow.visibility >= 0.4 &&
-          wrist.visibility >= 0.4 &&
-          rightAnkle.visibility >= 0.4 &&
-          leftAnkle.visibility >= 0.4 &&
-          rightKnee.visibility >= 0.4 &&
-          leftKnee.visibility >= 0.4 &&
-          hip.visibility >= 0.4 &&
-          knee.visibility >= 0.4 &&
-          ankle.visibility >= 0.4;
-
-        setErrorFeedback(
-          keypointsVisibleEnough ? "" : "⚠️ Keypoints not visible enough.",
-        );
-
-        let ankleDistance: number | null = null;
-        let kneeDistance: number | null = null;
-        let hipDistance: number | null = null;
-        let shoulderDistance: number | null = null;
-        let flareDistance: number | null = null;
-        let elbowAngle: number | null = null;
-        let kneeAngle: number | null = null;
-
-        if (hipVisible && kneesVisible && anklesVisible) {
-          kneeAngle = calculateAngle(hip, knee, ankle, aspectRatio);
-        }
-
-        if (shouldersVisible) {
-          shoulderDistance = calculateDistance(
-            rightShoulder,
-            leftShoulder,
-            aspectRatio,
-          );
-        }
-
-        if (elbowVisible && shoulderVisible && wristVisible) {
-          elbowAngle = calculateAngle(
-            shoulder,
-            elbow,
-            wrist,
-            aspectRatio,
-          );
-          flareDistance = Math.abs(elbow.x - shoulder.x) * aspectRatio;
-        }
-
-        if (anklesVisible) {
-          ankleDistance = calculateDistance(
-            rightAnkle,
-            leftAnkle,
-            aspectRatio,
-          );
-        }
-
-        if (kneesVisible) {
-          kneeDistance = calculateDistance(rightKnee, leftKnee, aspectRatio);
-        }
-        if (hipsVisible) {
-          hipDistance = calculateDistance(
-            landmarks[24],
-            landmarks[23],
-            aspectRatio,
-          );
-        }
-
-        // --- ELBOW ---
-        if (
-          !elbowVisible ||
-          !shoulderVisible ||
-          !wristVisible ||
-          flareDistance === null ||
-          elbowAngle === null
-        ) {
-          setFlareFeedback(
-            "⚠️ Arms not fully visible. Unable to calculate elbow feedback.",
-          );
-        } else if (flareDistance > 0.15) {
-          setFlareFeedback("⚠️ Elbow too wide");
-        } else if (flareDistance < 0.01) {
-          setFlareFeedback("⚠️ Elbow is too inside");
-        } else if (elbowAngle < 40) {
-          setFlareFeedback("⚠️ Arm angle too tight");
-        } else {
-          setFlareFeedback("✅ Good elbow alignment");
-        }
-
-        // --- ANKLES ---
-        if (!anklesVisible) {
-          setAnkleFeedback("⚠️ Unable to detect ankles.");
-        } else if (!shouldersVisible || shoulderDistance === null) {
-          setAnkleFeedback("⚠️ Unable to calculate shoulder distance.");
-        } else if (ankleDistance === null) {
-          setAnkleFeedback("⚠️ Unable to calculate ankle distance.");
-        } else if (ankleDistance < shoulderDistance - 0.05) {
-          setAnkleFeedback("⚠️ Feet too close");
-        } else if (ankleDistance > shoulderDistance + 0.05) {
-          setAnkleFeedback("⚠️ Feet too far");
-        } else {
-          setAnkleFeedback("✅ Good foot spacing");
-        }
-
-        // --- KNEES ---
-        if (!kneesVisible) {
-          setKneeFeedback("⚠️ Unable to detect knees.");
-        } else if (!hipsVisible) {
-          setKneeFeedback("⚠️ Unable to calculate hip distance.");
-        } else if (!kneeDistance) {
-          setKneeFeedback("⚠️ Unable to calculate knee distance.");
-        } else if (!hipDistance) {
-          setKneeFeedback("⚠️ Unable to calculate hip distance.");
-        } else if (kneeDistance < hipDistance * 0.9) {
-          setKneeFeedback("⚠️ Knees too close");
-        } else if (kneeDistance > hipDistance) {
-          setKneeFeedback("⚠️ Knees too far");
-        } else {
-          setKneeFeedback("✅ Good knee spacing");
-        }
-        // --- BEND ---
-        if (!kneeAngle) {
-          setBendFeedback("⚠️ Unable to calculate knee bend.");
-        } else if (kneeAngle < 90) {
-          setBendFeedback("⚠️ Knee bend too deep.");
-        } else if (kneeAngle > 120) {
-          setBendFeedback("⚠️ Knee bend too shallow.");
-        } else {
-          setBendFeedback("✅ Good knee bend.");
-        }
-      }
-      animationFrameId = requestAnimationFrame(detect);
     }
 
     init();

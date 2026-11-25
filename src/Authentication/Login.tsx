@@ -94,7 +94,10 @@ export default function Login() {
             size={17}
             className="text-orange-300"
           />
-          <span>Secure sign-in. Your account stays protected.</span>
+          <span>
+            Secure sign-in with Auth0 and MongoDB Atlas. Your account stays
+            protected.
+          </span>
         </div>
 
         <p className="mt-10 text-center text-sm text-slate-400">
